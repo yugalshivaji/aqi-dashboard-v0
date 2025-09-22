@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Dashboard - Delhi-NCR Pollution Monitor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Same CSS as index.html */
+        :root {
+            --primary-color: #2E8B57;
+            --secondary-color: #228B22;
+            --accent-color: #32CD32;
+            --dark-color: #1a3c27;
+            --light-color: #f5f9f7;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        .navbar {
+            background-color: var(--dark-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+        }
+        
+        .nav-link {
+            color: rgba(255,255,255,0.85) !important;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+        }
+        
+        .section-title {
+            color: var(--dark-color);
+            margin-bottom: 30px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+        }
+        
+        .aqi-badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .aqi-good { background-color: #4CAF50; color: white; }
+        .aqi-moderate { background-color: #FFC107; color: black; }
+        .aqi-unhealthy-sensitive { background-color: #FF9800; color: white; }
+        .aqi-unhealthy { background-color: #F44336; color: white; }
+        .aqi-very-unhealthy { background-color: #9C27B0; color: white; }
+        .aqi-hazardous { background-color: #795548; color: white; }
+        
+        .footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 40px 0 20px;
+        }
+        
+        .footer a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer a:hover {
+            color: white;
+        }
+        
+        .policy-recommendation {
+            background-color: #f0f7ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .intervention-impact {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .impact-positive { border-left: 4px solid #4CAF50; }
+        .impact-neutral { border-left: 4px solid #FFC107; }
+        .impact-negative { border-left: 4px solid #F44336; }
+        
+        .map-container {
+            height: 400px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .data-table th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .map-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-leaf me-2"></i>Delhi-NCR Pollution Monitor
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="citizen-dashboard.html">Citizen Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="policy-dashboard.html">Policy Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Policy Dashboard Content -->
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="section-title">Policy Dashboard</h1>
+                <p class="lead">Data-driven insights for evidence-based pollution control policies and interventions.</p>
+            </div>
+        </div>
+        
+        <!-- Key Metrics -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-primary">156</h3>
+                        <p class="text-muted mb-0">Current Delhi AQI</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-warning">18</h3>
+                        <p class="text-muted mb-0">Active Fire Incidents</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-success">-12%</h3>
+                        <p class="text-muted mb-0">AQI Change (vs Last Week)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h3 class="text-info">42%</h3>
+                        <p class="text-muted mb-0">Stubble Burning Contribution</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Regional AQI Overview -->
+            <div class="col-lg-8 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-map me-2"></i>Regional AQI Overview
+                    </div>
+                    <div class="card-body">
+                        <div class="map-container bg-light mb-4">
+                            <div class="d-flex justify-content-center align-items-center h-100">
+                                <div class="text-center">
+                                    <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+                                    <h5>Delhi-NCR Pollution Heatmap</h5>
+                                    <p class="text-muted">Interactive map showing real-time AQI across regions</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Region</th>
+                                        <th>Current AQI</th>
+                                        <th>Primary Pollutant</th>
+                                        <th>Trend</th>
+                                        <th>Source Contribution</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Central Delhi</td>
+                                        <td><span class="aqi-badge aqi-unhealthy">168</span></td>
+                                        <td>PM2.5</td>
+                                        <td><i class="fas fa-arrow-up text-danger"></i> Increasing</td>
+                                        <td>Vehicular (35%)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>West Delhi</td>
+                                        <td><span class="aqi-badge aqi-unhealthy">152</span></td>
+                                        <td>PM2.5</td>
+                                        <td><i class="fas fa-arrow-down text-success"></i> Decreasing</td>
+                                        <td>Industrial (42%)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>East Delhi</td>
+                                        <td><span class="aqi-badge aqi-unhealthy">174</span></td>
+                                        <td>PM10</td>
+                                        <td><i class="fas fa-arrow-up text-danger"></i> Increasing</td>
+                                        <td>Construction (38%)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Gurugram</td>
+                                        <td><span class="aqi-badge aqi-unhealthy">162</span></td>
+                                        <td>PM2.5</td>
+                                        <td><i class="fas fa-minus text-secondary"></i> Stable</td>
+                                        <td>Vehicular (45%)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Noida</td>
+                                        <td><span class="aqi-badge aqi-unhealthy">158</span></td>
+                                        <td>PM2.5</td>
+                                        <td><i class="fas fa-arrow-down text-success"></i> Decreasing</td>
+                                        <td>Mixed Sources</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Recommendations -->
+            <div class="col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-robot me-2"></i>AI Policy Recommendations
+                    </div>
+                    <div class="card-body">
+                        <div class="policy-recommendation">
+                            <h6><i class="fas fa-fire me-2"></i>Stubble Burning Mitigation</h6>
+                            <p class="mb-2">High contribution from agricultural fires in Punjab/Haryana. Recommend:</p>
+                            <ul class="mb-0">
+                                <li>Accelerate farmer subsidy programs for happy seeders</li>
+                                <li>Enhance monitoring and enforcement in hotspot districts</li>
+                            </ul>
+                            <div class="mt-2">
+                                <small class="text-muted">Expected impact: 15-20% AQI reduction</small>
+                            </div>
+                        </div>
+                        
+                        <div class="policy-recommendation">
+                            <h6><i class="fas fa-car me-2"></i>Traffic Management</h6>
+                            <p class="mb-2">Vehicular emissions peak during 8-11 AM. Recommend:</p>
+                            <ul class="mb-0">
+                                <li>Extend odd-even scheme during high pollution days</li>
+                                <li>Promote staggered office hours for corporates</li>
+                            </ul>
+                            <div class="mt-2">
+                                <small class="text-muted">Expected impact: 8-12% AQI reduction</small>
+                            </div>
+                        </div>
+                        
+                        <div class="policy-recommendation">
+                            <h6><i class="fas fa-industry me-2"></i>Industrial Controls</h6>
+                            <p class="mb-2">Industrial clusters in West Delhi show high emissions. Recommend:</p>
+                            <ul class="mb-0">
+                                <li>Enforce stricter emission standards for SMEs</li>
+                                <li>Accelerate transition to cleaner fuels</li>
+                            </ul>
+                            <div class="mt-2">
+                                <small class="text-muted">Expected impact: 10-15% AQI reduction</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button class="btn btn-success w-100">
+                                <i class="fas fa-download me-2"></i>Download Full Policy Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Source Attribution Analysis -->
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-pie me-2"></i>Pollution Source Attribution
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <canvas id="sourceAttributionChart" height="250"></canvas>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Seasonal Variations</h6>
+                                <p>Source contributions change significantly across seasons:</p>
+                                <ul>
+                                    <li><strong>Winter (Oct-Feb):</strong> Stubble burning peaks (35-45%)</li>
+                                    <li><strong>Summer (Mar-Jun):</strong> Dust storms increase (25-30%)</li>
+                                    <li><strong>Monsoon (Jul-Sep):</strong> Natural cleansing reduces all sources</li>
+                                </ul>
+                                <div class="mt-3">
+                                    <h6>Top Source Hotspots</h6>
+                                    <ol>
+                                        <li>Stubble burning: Punjab districts</li>
+                                        <li>Vehicular emissions: Central Delhi corridors</li>
+                                        <li>Industrial pollution: West Delhi clusters</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Intervention Effectiveness -->
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-bar me-2"></i>Intervention Effectiveness
+                    </div>
+                    <div class="card-body">
+                        <canvas id="interventionChart" height="250"></canvas>
+                        <div class="mt-3">
+                            <h6>Recent Policy Impacts</h6>
+                            <div class="intervention-impact impact-positive">
+                                <div>
+                                    <h6 class="mb-1">Odd-Even Vehicle Scheme</h6>
+                                    <p class="mb-0">Implemented Nov 15-30, 2024</p>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-success">+12% effectiveness</span>
+                                    <p class="mb-0">AQI reduced by 18 points</p>
+                                </div>
+                            </div>
+                            <div class="intervention-impact impact-neutral">
+                                <div>
+                                    <h6 class="mb-1">Construction Ban</h6>
+                                    <p class="mb-0">Implemented during severe AQI days</p>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-warning">+5% effectiveness</span>
+                                    <p class="mb-0">Limited impact due to exemptions</p>
+                                </div>
+                            </div>
+                            <div class="intervention-impact impact-negative">
+                                <div>
+                                    <h6 class="mb-1">Firecracker Ban</h6>
+                                    <p class="mb-0">Diwali season enforcement</p>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-danger">-8% effectiveness</span>
+                                    <p class="mb-0">Poor compliance in residential areas</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Forecasting & Trends -->
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-line me-2"></i>AQI Forecasting & Trends
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <canvas id="forecastTrendChart" height="300"></canvas>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Seasonal Forecast</h6>
+                                <p>Based on historical data and current conditions:</p>
+                                <ul>
+                                    <li><strong>Next 72 hours:</strong> AQI expected to remain 150-180 (Unhealthy)</li>
+                                    <li><strong>Next week:</strong> Possible improvement if wind patterns change</li>
+                                    <li><strong>Monthly outlook:</strong> Gradual improvement as winter progresses</li>
+                                </ul>
+                                <div class="mt-4">
+                                    <h6>Key Factors</h6>
+                                    <div class="mb-2">
+                                        <span class="badge bg-success me-2">Favorable</span>
+                                        <small>Increasing wind speed from NW</small>
+                                    </div>
+                                    <div class="mb-2">
+                                        <span class="badge bg-warning me-2">Neutral</span>
+                                        <small>Stable temperature patterns</small>
+                                    </div>
+                                    <div class="mb-2">
+                                        <span class="badge bg-danger me-2">Concerning</span>
+                                        <small>High fire count in neighboring states</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5>Delhi-NCR Pollution Monitor</h5>
+                    <p>An AI-driven platform for pollution source identification, forecasting, and policy recommendations.</p>
+                    <div class="social-links">
+                        <a href="#" class="me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="me-3"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="me-3"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="citizen-dashboard.html">Citizen Dashboard</a></li>
+                        <li><a href="policy-dashboard.html">Policy Dashboard</a></li>
+                        <li><a href="about.html">About</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>Data Sources</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="https://firms.modaps.eosdis.nasa.gov/" target="_blank">NASA FIRMS</a></li>
+                        <li><a href="https://www.airnow.gov/" target="_blank">AirNow</a></li>
+                        <li><a href="https://aqicn.org/api/" target="_blank">AQICN</a></li>
+                        <li><a href="https://openweathermap.org/api" target="_blank">OpenWeather</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>Contact</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope me-2"></i> info@pollutionmonitor.in</li>
+                        <li><i class="fas fa-phone me-2"></i> +91 98765 43210</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i> Delhi NCR, India</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="mt-0">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2025 Delhi-NCR Pollution Monitor. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">Developed for Smart India Hackathon 2025</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize charts when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePolicyCharts();
+            
+            // Set up auto-refresh every 15 minutes
+            setInterval(updatePolicyData, 900000);
+        });
+        
+        function initializePolicyCharts() {
+            // Source Attribution Chart
+            const sourceCtx = document.getElementById('sourceAttributionChart').getContext('2d');
+            const sourceChart = new Chart(sourceCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Stubble Burning', 'Vehicular Emissions', 'Industrial', 'Construction', 'Other'],
+                    datasets: [{
+                        data: [42, 28, 15, 10, 5],
+                        backgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#4BC0C0',
+                            '#9966FF'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Intervention Effectiveness Chart
+            const interventionCtx = document.getElementById('interventionChart').getContext('2d');
+            const interventionChart = new Chart(interventionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Odd-Even', 'Construction Ban', 'Firecracker Ban', 'Industry Controls', 'Public Transport'],
+                    datasets: [{
+                        label: 'Effectiveness (%)',
+                        data: [75, 40, 20, 65, 55],
+                        backgroundColor: [
+                            'rgba(46, 139, 87, 0.7)',
+                            'rgba(255, 193, 7, 0.7)',
+                            'rgba(244, 67, 54, 0.7)',
+                            'rgba(46, 139, 87, 0.7)',
+                            'rgba(46, 139, 87, 0.7)'
+                        ],
+                        borderColor: [
+                            '#2E8B57',
+                            '#FFC107',
+                            '#F44336',
+                            '#2E8B57',
+                            '#2E8B57'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Effectiveness (%)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Forecast Trend Chart
+            const forecastCtx = document.getElementById('forecastTrendChart').getContext('2d');
+            const forecastChart = new Chart(forecastCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Oct 1', 'Oct 15', 'Nov 1', 'Nov 15', 'Dec 1', 'Dec 15', 'Jan 1', 'Jan 15'],
+                    datasets: [{
+                        label: 'Historical AQI (2024)',
+                        data: [120, 135, 165, 185, 195, 210, 205, 190],
+                        borderColor: 'rgba(151, 151, 151, 0.7)',
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.3
+                    }, {
+                        label: 'Current AQI (2025)',
+                        data: [115, 130, 155, 175, 185, 200, 195, 180],
+                        borderColor: '#2E8B57',
+                        backgroundColor: 'rgba(46, 139, 87, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }, {
+                        label: 'Forecast (Next 30 days)',
+                        data: [180, null, null, null, null, null, null, 150],
+                        borderColor: '#2196F3',
+                        borderDash: [5, 5],
+                        pointBackgroundColor: '#2196F3',
+                        fill: false,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'AQI'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updatePolicyData() {
+            // In a real implementation, this would fetch updated data from APIs
+            console.log('Policy dashboard data refreshed');
+        }
+    </script>
+</body>
+</html>
