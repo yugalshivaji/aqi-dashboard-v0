@@ -1,4 +1,4 @@
-// policymaker.js - Policymaker Dashboard Functionality
+  // policymaker.js - Policymaker Dashboard Functionality
 // Contains all policymaker-specific features and functionalities
 
 // ============================================================================
@@ -1246,3 +1246,1431 @@ function initializeAQITrendCharts() {
                     max: 1
                 }
 
+            }
+        }
+    });
+    
+    // Seasonal analysis chart
+    const seasonalCtx = document.getElementById('seasonalAnalysisChart').getContext('2d');
+    policymakerState.charts.seasonalAnalysis = new Chart(seasonalCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Winter', 'Summer', 'Monsoon', 'Post-Monsoon'],
+            datasets: [{
+                label: 'Average AQI',
+                data: [325, 185, 95, 145],
+                backgroundColor: [
+                    'rgba(220, 53, 69, 0.7)',
+                    'rgba(255, 193, 7, 0.7)',
+                    'rgba(40, 167, 69, 0.7)',
+                    'rgba(13, 110, 253, 0.7)'
+                ],
+                borderColor: [
+                    'rgb(220, 53, 69)',
+                    'rgb(255, 193, 7)',
+                    'rgb(40, 167, 69)',
+                    'rgb(13, 110, 253)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'AQI Value'
+                    }
+                }
+            }
+        }
+    });
+    
+    // Pollution source charts
+    const sourceCurrentCtx = document.getElementById('sourceChartCurrent').getContext('2d');
+    policymakerState.charts.sourceCurrent = new Chart(sourceCurrentCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Vehicle', 'Industrial', 'Construction', 'Waste Burning', 'Others'],
+            datasets: [{
+                data: [38, 28, 15, 12, 7],
+                backgroundColor: [
+                    'rgba(13, 110, 253, 0.7)',
+                    'rgba(255, 193, 7, 0.7)',
+                    'rgba(253, 126, 20, 0.7)',
+                    'rgba(40, 167, 69, 0.7)',
+                    'rgba(108, 117, 125, 0.7)'
+                ],
+                borderColor: [
+                    'rgb(13, 110, 253)',
+                    'rgb(255, 193, 7)',
+                    'rgb(253, 126, 20)',
+                    'rgb(40, 167, 69)',
+                    'rgb(108, 117, 125)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    const sourcePreviousCtx = document.getElementById('sourceChartPrevious').getContext('2d');
+    policymakerState.charts.sourcePrevious = new Chart(sourcePreviousCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Vehicle', 'Industrial', 'Construction', 'Waste Burning', 'Others'],
+            datasets: [{
+                data: [43, 30, 16, 8, 3],
+                backgroundColor: [
+                    'rgba(13, 110, 253, 0.7)',
+                    'rgba(255, 193, 7, 0.7)',
+                    'rgba(253, 126, 20, 0.7)',
+                    'rgba(40, 167, 69, 0.7)',
+                    'rgba(108, 117, 125, 0.7)'
+                ],
+                borderColor: [
+                    'rgb(13, 110, 253)',
+                    'rgb(255, 193, 7)',
+                    'rgb(253, 126, 20)',
+                    'rgb(40, 167, 69)',
+                    'rgb(108, 117, 125)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Setup metric toggle buttons
+ */
+function setupMetricToggle() {
+    document.querySelectorAll('[data-metric]').forEach(button => {
+        button.addEventListener('click', function() {
+            const metric = this.getAttribute('data-metric');
+            changeAQIMetric(metric);
+            
+            // Update active button
+            document.querySelectorAll('[data-metric]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            this.classList.add('active');
+        });
+    });
+}
+
+/**
+ * Change AQI metric display
+ * @param {string} metric - Metric type
+ */
+function changeAQIMetric(metric) {
+    if (!policymakerState.charts.aqiTrend) return;
+    
+    // Mock data for different metrics
+    const metricData = {
+        'aqi': [325, 310, 285, 240, 220, 210, 180, 195, 220, 280, 320],
+        'pm25': [215, 198, 175, 148, 135, 128, 105, 115, 135, 185, 210],
+        'pm10': [350, 325, 290, 245, 225, 215, 180, 195, 225, 295, 335],
+        'no2': [85, 82, 75, 65, 60, 58, 50, 55, 60, 75, 82]
+    };
+    
+    // Update chart data
+    policymakerState.charts.aqiTrend.data.datasets[0].data = metricData[metric] || metricData.aqi;
+    policymakerState.charts.aqiTrend.data.datasets[0].label = metric.toUpperCase();
+    policymakerState.charts.aqiTrend.update();
+}
+
+/**
+ * Load AQI trends data
+ */
+async function loadAQITrendsData() {
+    try {
+        // In a real app, this would be an API call
+        // For demo, we'll use mock data
+        const mockData = generateMockAQITrendsData();
+        
+        // Update AQI trends display
+        updateAQITrendsDisplay(mockData);
+        
+    } catch (error) {
+        console.error('Error loading AQI trends data:', error);
+        showAlert('Failed to load AQI trends data. Please try again.', 'error');
+    }
+}
+
+/**
+ * Update AQI trends display
+ * @param {Object} data - AQI trends data
+ */
+function updateAQITrendsDisplay(data) {
+    // This would update various AQI trend visualizations
+    console.log('AQI trends data loaded:', data);
+}
+
+// ============================================================================
+// SHELTERS FUNCTIONALITY
+// ============================================================================
+
+/**
+ * Initialize shelters section
+ */
+function initializeShelters() {
+    console.log('Initializing shelters...');
+    
+    // Initialize chart
+    initializeShelterChart();
+    
+    // Load initial data
+    loadSheltersData();
+}
+
+/**
+ * Initialize shelter chart
+ */
+function initializeShelterChart() {
+    const shelterCtx = document.getElementById('shelterUtilizationChart').getContext('2d');
+    policymakerState.charts.shelterUtilization = new Chart(shelterCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Central', 'South', 'East', 'North', 'West'],
+            datasets: [
+                {
+                    label: 'Capacity',
+                    data: [50, 35, 40, 45, 30],
+                    backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                    borderColor: 'rgb(13, 110, 253)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Current Usage',
+                    data: [42, 28, 40, 32, 18],
+                    backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                    borderColor: 'rgb(40, 167, 69)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of People'
+                    }
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Load shelters data
+ */
+async function loadSheltersData() {
+    try {
+        // In a real app, this would be an API call
+        // For demo, we'll use mock data
+        const mockData = generateMockSheltersData();
+        
+        // Update shelters display
+        updateSheltersDisplay(mockData);
+        
+    } catch (error) {
+        console.error('Error loading shelters data:', error);
+        showAlert('Failed to load shelters data. Please try again.', 'error');
+    }
+}
+
+/**
+ * Update shelters display
+ * @param {Object} data - Shelters data
+ */
+function updateSheltersDisplay(data) {
+    // Update shelter statistics
+    document.getElementById('totalShelters').textContent = data.totalShelters;
+    document.getElementById('totalCapacity').textContent = data.totalCapacity.toLocaleString();
+    document.getElementById('currentUtilization').textContent = `${data.utilization}%`;
+    document.getElementById('healthCases').textContent = data.healthCases;
+}
+
+// ============================================================================
+// EVENTS FUNCTIONALITY
+// ============================================================================
+
+/**
+ * Initialize events section
+ */
+function initializeEvents() {
+    console.log('Initializing events...');
+    
+    // Initialize charts
+    initializeEventCharts();
+    
+    // Load initial data
+    loadEventsData();
+}
+
+/**
+ * Initialize event charts
+ */
+function initializeEventCharts() {
+    // Events participation chart
+    const eventCtx = document.getElementById('eventsParticipationChart').getContext('2d');
+    policymakerState.charts.eventsParticipation = new Chart(eventCtx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
+            datasets: [
+                {
+                    label: 'Number of Events',
+                    data: [8, 10, 12, 15, 14, 16, 18, 16, 20, 18, 15],
+                    borderColor: 'rgb(13, 110, 253)',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Participants',
+                    data: [800, 950, 1100, 1300, 1250, 1400, 1600, 1550, 1800, 1700, 1500],
+                    borderColor: 'rgb(40, 167, 69)',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Number of Events'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Participants'
+                    }
+                }
+            }
+        }
+    });
+    
+    // Event type chart
+    const typeCtx = document.getElementById('eventTypeChart').getContext('2d');
+    policymakerState.charts.eventType = new Chart(typeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Workshops', 'Awareness Camps', 'Feedback Sessions', 'Training Programs', 'Other'],
+            datasets: [{
+                data: [35, 28, 20, 12, 5],
+                backgroundColor: [
+                    'rgba(13, 110, 253, 0.7)',
+                    'rgba(40, 167, 69, 0.7)',
+                    'rgba(255, 193, 7, 0.7)',
+                    'rgba(253, 126, 20, 0.7)',
+                    'rgba(108, 117, 125, 0.7)'
+                ],
+                borderColor: [
+                    'rgb(13, 110, 253)',
+                    'rgb(40, 167, 69)',
+                    'rgb(255, 193, 7)',
+                    'rgb(253, 126, 20)',
+                    'rgb(108, 117, 125)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Load events data
+ */
+async function loadEventsData() {
+    try {
+        // In a real app, this would be an API call
+        // For demo, we'll use mock data
+        const mockData = generateMockEventsData();
+        
+        // Update events display
+        updateEventsDisplay(mockData);
+        
+    } catch (error) {
+        console.error('Error loading events data:', error);
+        showAlert('Failed to load events data. Please try again.', 'error');
+    }
+}
+
+/**
+ * Update events display
+ * @param {Object} data - Events data
+ */
+function updateEventsDisplay(data) {
+    // This would update events visualization
+    console.log('Events data loaded:', data);
+}
+
+// ============================================================================
+// REPORTS FUNCTIONALITY
+// ============================================================================
+
+/**
+ * Initialize reports section
+ */
+function initializeReports() {
+    console.log('Initializing reports...');
+    
+    // Setup form handlers
+    setupReportFormHandlers();
+    
+    // Load initial data
+    loadReportsData();
+}
+
+/**
+ * Setup report form handlers
+ */
+function setupReportFormHandlers() {
+    // Report period change handler
+    document.getElementById('reportPeriod').addEventListener('change', handleReportPeriodChange);
+    
+    // Report form submission
+    document.getElementById('reportForm').addEventListener('submit', handleReportGeneration);
+}
+
+/**
+ * Handle report period change
+ */
+function handleReportPeriodChange() {
+    const period = document.getElementById('reportPeriod').value;
+    const customRange = document.getElementById('customDateRange');
+    
+    if (period === 'custom') {
+        customRange.style.display = 'block';
+    } else {
+        customRange.style.display = 'none';
+    }
+}
+
+/**
+ * Handle report generation
+ * @param {Event} e - Form submit event
+ */
+function handleReportGeneration(e) {
+    e.preventDefault();
+    
+    const reportType = document.getElementById('reportType').value;
+    const reportPeriod = document.getElementById('reportPeriod').value;
+    const reportFormat = document.getElementById('reportFormat').value;
+    
+    if (!reportType || !reportPeriod || !reportFormat) {
+        showAlert('Please fill all required fields', 'error');
+        return;
+    }
+    
+    // Show generating message
+    showAlert('Generating report... This may take a moment.', 'info');
+    
+    // Simulate report generation
+    setTimeout(() => {
+        const reportName = `${reportType.replace('-', ' ').toUpperCase()} Report - ${new Date().toLocaleDateString()}`;
+        
+        showAlert(`Report "${reportName}" generated successfully!`, 'success');
+        
+        // In a real app, this would trigger download
+        console.log(`Report generated: Type=${reportType}, Period=${reportPeriod}, Format=${reportFormat}`);
+        
+        // Refresh reports list
+        loadReportsData();
+    }, 2000);
+}
+
+/**
+ * Preview report
+ */
+function previewReport() {
+    showAlert('Report preview feature would open a preview window here.', 'info');
+}
+
+/**
+ * Load reports data
+ */
+async function loadReportsData() {
+    try {
+        // In a real app, this would be an API call
+        // For demo, we'll use mock data
+        const mockData = generateMockReportsData();
+        
+        // Update reports list
+        updateReportsList(mockData);
+        
+    } catch (error) {
+        console.error('Error loading reports data:', error);
+        showAlert('Failed to load reports data. Please try again.', 'error');
+    }
+}
+
+/**
+ * Update reports list
+ * @param {Array} reportsData - Reports data
+ */
+function updateReportsList(reportsData) {
+    // This would update the reports table
+    console.log('Reports data loaded:', reportsData);
+}
+
+// ============================================================================
+// RECOMMENDATIONS FUNCTIONALITY
+// ============================================================================
+
+/**
+ * Initialize recommendations section
+ */
+function initializeRecommendations() {
+    console.log('Initializing recommendations...');
+    
+    // Initialize charts
+    initializeRecommendationCharts();
+    
+    // Setup recommendation actions
+    setupRecommendationActions();
+    
+    // Load initial data
+    loadRecommendationsData();
+}
+
+/**
+ * Initialize recommendation charts
+ */
+function initializeRecommendationCharts() {
+    // Recommendation analytics chart
+    const analyticsCtx = document.getElementById('recommendationAnalyticsChart').getContext('2d');
+    policymakerState.charts.recommendationAnalytics = new Chart(analyticsCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Approved', 'Implemented', 'Pending', 'Rejected'],
+            datasets: [{
+                label: 'Number of Recommendations',
+                data: [42, 28, 14, 6],
+                backgroundColor: [
+                    'rgba(13, 110, 253, 0.7)',
+                    'rgba(40, 167, 69, 0.7)',
+                    'rgba(255, 193, 7, 0.7)',
+                    'rgba(220, 53, 69, 0.7)'
+                ],
+                borderColor: [
+                    'rgb(13, 110, 253)',
+                    'rgb(40, 167, 69)',
+                    'rgb(255, 193, 7)',
+                    'rgb(220, 53, 69)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Recommendations'
+                    }
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Setup recommendation actions
+ */
+function setupRecommendationActions() {
+    // Setup approve/modify/reject buttons
+    document.querySelectorAll('.recommendations-list').forEach(container => {
+        container.addEventListener('click', function(e) {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            
+            const action = btn.textContent.trim();
+            const recommendation = btn.closest('.recommendation-item').querySelector('h5').textContent;
+            
+            handleRecommendationAction(action, recommendation);
+        });
+    });
+}
+
+/**
+ * Handle recommendation action
+ * @param {string} action - Action type
+ * @param {string} recommendation - Recommendation title
+ */
+function handleRecommendationAction(action, recommendation) {
+    switch(action) {
+        case 'Approve':
+            showAlert(`Recommendation "${recommendation}" approved!`, 'success');
+            break;
+        case 'Modify':
+            showAlert(`Recommendation "${recommendation}" marked for modification.`, 'info');
+            break;
+        case 'Reject':
+            showAlert(`Recommendation "${recommendation}" rejected.`, 'warning');
+            break;
+    }
+}
+
+/**
+ * Load recommendations data
+ */
+async function loadRecommendationsData() {
+    try {
+        // In a real app, this would be an API call
+        // For demo, we'll use mock data
+        const mockData = generateMockRecommendationsData();
+        
+        // Update recommendations display
+        updateRecommendationsDisplay(mockData);
+        
+    } catch (error) {
+        console.error('Error loading recommendations data:', error);
+        showAlert('Failed to load recommendations data. Please try again.', 'error');
+    }
+}
+
+/**
+ * Update recommendations display
+ * @param {Object} data - Recommendations data
+ */
+function updateRecommendationsDisplay(data) {
+    // This would update recommendations visualization
+    console.log('Recommendations data loaded:', data);
+}
+
+// ============================================================================
+// PROFILE FUNCTIONALITY
+// ============================================================================
+
+/**
+ * Initialize profile section
+ */
+function initializeProfile() {
+    console.log('Initializing profile...');
+    
+    // Setup form handlers
+    setupProfileFormHandlers();
+    
+    // Setup danger zone actions
+    setupDangerZoneActions();
+    
+    // Load initial data
+    loadProfileData();
+}
+
+/**
+ * Setup profile form handlers
+ */
+function setupProfileFormHandlers() {
+    // Profile update form
+    document.getElementById('profileForm').addEventListener('submit', updateProfile);
+    
+    // Password change form
+    document.getElementById('passwordForm').addEventListener('submit', changePassword);
+}
+
+/**
+ * Setup danger zone actions
+ */
+function setupDangerZoneActions() {
+    document.getElementById('exportAllData').addEventListener('click', exportAllData);
+    document.getElementById('clearAnalyticsCache').addEventListener('click', clearAnalyticsCache);
+    document.getElementById('deleteAccount').addEventListener('click', deleteAccount);
+}
+
+/**
+ * Update profile
+ * @param {Event} e - Form submit event
+ */
+function updateProfile(e) {
+    e.preventDefault();
+    
+    const fullName = document.getElementById('profileFullName').value;
+    const department = document.getElementById('profileDepartment').value;
+    const designation = document.getElementById('profileDesignation').value;
+    const phone = document.getElementById('profilePhone').value;
+    
+    // In a real app, this would be an API call
+    showAlert('Profile updated successfully!', 'success');
+    
+    // Update user display
+    document.getElementById('userName').textContent = fullName;
+    document.getElementById('profileUserName').textContent = fullName;
+}
+
+/**
+ * Change password
+ * @param {Event} e - Form submit event
+ */
+function changePassword(e) {
+    e.preventDefault();
+    
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        showAlert('Please fill all password fields', 'error');
+        return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+        showAlert('New passwords do not match', 'error');
+        return;
+    }
+    
+    if (newPassword.length < 8) {
+        showAlert('Password must be at least 8 characters long', 'error');
+        return;
+    }
+    
+    // In a real app, this would validate current password and update via API
+    showAlert('Password changed successfully!', 'success');
+    
+    // Clear form
+    document.getElementById('passwordForm').reset();
+}
+
+/**
+ * Export all data
+ */
+function exportAllData() {
+    if (confirm('Are you sure you want to export all data? This may take several minutes.')) {
+        showAlert('Data export started. You will receive an email when it\'s ready.', 'info');
+        console.log('Exporting all data...');
+    }
+}
+
+/**
+ * Clear analytics cache
+ */
+function clearAnalyticsCache() {
+    if (confirm('Are you sure you want to clear analytics cache? This will not delete your data.')) {
+        showAlert('Analytics cache cleared successfully.', 'success');
+        console.log('Analytics cache cleared');
+    }
+}
+
+/**
+ * Delete account
+ */
+function deleteAccount() {
+    if (confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.')) {
+        if (prompt('Type "DELETE" to confirm account deletion:') === 'DELETE') {
+            showAlert('Account deletion requested. Admin approval required.', 'warning');
+            console.log('Account deletion requested');
+        }
+    }
+}
+
+/**
+ * Load profile data
+ */
+async function loadProfileData() {
+    try {
+        // In a real app, this would be an API call
+        // For demo, we'll use mock data
+        const mockData = generateMockProfileData();
+        
+        // Update profile display
+        updateProfileDisplay(mockData);
+        
+    } catch (error) {
+        console.error('Error loading profile data:', error);
+        showAlert('Failed to load profile data. Please try again.', 'error');
+    }
+}
+
+/**
+ * Update profile display
+ * @param {Object} data - Profile data
+ */
+function updateProfileDisplay(data) {
+    // This would update profile visualizations
+    console.log('Profile data loaded:', data);
+}
+
+// ============================================================================
+// NOTIFICATION FUNCTIONS
+// ============================================================================
+
+/**
+ * Load notifications
+ */
+async function loadNotifications() {
+    try {
+        // In a real app, this would be an API call
+        // For demo, we'll use mock data
+        const mockNotifications = generateMockNotifications();
+        
+        // Update notification count
+        updateNotificationCount(mockNotifications.length);
+        
+        // Update notification panel
+        updateNotificationPanel(mockNotifications);
+        
+    } catch (error) {
+        console.error('Error loading notifications:', error);
+    }
+}
+
+/**
+ * Update notification count
+ * @param {number} count - Number of notifications
+ */
+function updateNotificationCount(count) {
+    const badge = document.getElementById('notificationCount');
+    if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'inline-block';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+/**
+ * Update notification panel
+ * @param {Array} notifications - Notifications data
+ */
+function updateNotificationPanel(notifications) {
+    const container = document.getElementById('notificationPanelContent');
+    
+    if (!notifications || notifications.length === 0) {
+        container.innerHTML = '<p class="text-muted text-center py-3">No new notifications</p>';
+        return;
+    }
+    
+    const notificationsHtml = notifications.map(notif => `
+        <div class="notification-item border-bottom pb-2 mb-2">
+            <h6 class="mb-1">${notif.title}</h6>
+            <p class="small mb-1">${notif.message}</p>
+            <small class="text-muted">${notif.time}</small>
+        </div>
+    `).join('');
+    
+    container.innerHTML = notificationsHtml;
+}
+
+/**
+ * Toggle notification panel
+ */
+function toggleNotificationPanel() {
+    const panel = document.getElementById('notificationPanel');
+    const profilePanel = document.getElementById('profilePanel');
+    
+    // Close profile panel if open
+    if (profilePanel.style.display === 'block') {
+        profilePanel.style.display = 'none';
+    }
+    
+    // Toggle notification panel
+    if (panel.style.display === 'block') {
+        panel.style.display = 'none';
+    } else {
+        panel.style.display = 'block';
+        loadNotifications(); // Refresh notifications
+    }
+}
+
+/**
+ * Mark all notifications as read
+ */
+function markAllNotificationsRead() {
+    // In a real app, this would be an API call
+    updateNotificationCount(0);
+    
+    showAlert('All notifications marked as read', 'success');
+    document.getElementById('notificationPanelContent').innerHTML = 
+        '<p class="text-muted text-center py-3">No new notifications</p>';
+}
+
+/**
+ * Toggle profile panel
+ */
+function toggleProfilePanel() {
+    const panel = document.getElementById('profilePanel');
+    const notificationPanel = document.getElementById('notificationPanel');
+    
+    // Close notification panel if open
+    if (notificationPanel.style.display === 'block') {
+        notificationPanel.style.display = 'none';
+    }
+    
+    // Toggle profile panel
+    if (panel.style.display === 'block') {
+        panel.style.display = 'none';
+    } else {
+        panel.style.display = 'block';
+    }
+}
+
+// ============================================================================
+// CHATBOT FUNCTIONS
+// ============================================================================
+
+/**
+ * Toggle chatbot panel
+ */
+function toggleChatbotPanel() {
+    const panel = document.getElementById('chatbotPanel');
+    
+    if (panel.style.display === 'block') {
+        panel.style.display = 'none';
+    } else {
+        panel.style.display = 'block';
+        document.getElementById('chatbotInput').focus();
+        hideChatbotBadge();
+    }
+}
+
+/**
+ * Show chatbot badge
+ */
+function showChatbotBadge() {
+    const badge = document.getElementById('chatbotBadge');
+    badge.style.display = 'inline-block';
+}
+
+/**
+ * Hide chatbot badge
+ */
+function hideChatbotBadge() {
+    const badge = document.getElementById('chatbotBadge');
+    badge.style.display = 'none';
+}
+
+/**
+ * Send chatbot message
+ */
+async function sendChatbotMessage() {
+    const input = document.getElementById('chatbotInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Add user message
+    addChatbotMessage(message, 'user');
+    input.value = '';
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    try {
+        // In a real app, this would be an API call to AI service
+        // For demo, we'll simulate a response
+        setTimeout(() => {
+            removeTypingIndicator();
+            const response = generateChatbotResponse(message);
+            addChatbotMessage(response, 'bot');
+            
+            // Scroll to bottom
+            const chatbotBody = document.getElementById('chatbotMessages');
+            chatbotBody.scrollTop = chatbotBody.scrollHeight;
+        }, 1000);
+        
+    } catch (error) {
+        removeTypingIndicator();
+        addChatbotMessage('Sorry, I encountered an error. Please try again.', 'bot');
+        console.error('Chatbot error:', error);
+    }
+}
+
+/**
+ * Add chatbot message
+ * @param {string} message - Message text
+ * @param {string} sender - 'user' or 'bot'
+ */
+function addChatbotMessage(message, sender) {
+    const container = document.getElementById('chatbotMessages');
+    const messageClass = sender === 'user' ? 'user-message' : 'bot-message';
+    
+    const messageHtml = `
+        <div class="message ${messageClass}">
+            ${message}
+        </div>
+    `;
+    
+    container.innerHTML += messageHtml;
+}
+
+/**
+ * Show typing indicator
+ */
+function showTypingIndicator() {
+    const container = document.getElementById('chatbotMessages');
+    const typingHtml = `
+        <div class="message bot-message typing">
+            <div class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    `;
+    
+    container.innerHTML += typingHtml;
+    
+    // Scroll to bottom
+    const chatbotBody = document.getElementById('chatbotMessages');
+    chatbotBody.scrollTop = chatbotBody.scrollHeight;
+}
+
+/**
+ * Remove typing indicator
+ */
+function removeTypingIndicator() {
+    const container = document.getElementById('chatbotMessages');
+    const typingIndicator = container.querySelector('.typing');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+/**
+ * Generate chatbot response
+ * @param {string} message - User message
+ * @returns {string} - Response message
+ */
+function generateChatbotResponse(message) {
+    const lowerMessage = message.toLowerCase();
+    
+    // Policy-related queries
+    if (lowerMessage.includes('policy') || lowerMessage.includes('effectiveness')) {
+        return "Based on current data, the Odd-Even policy is showing 72% effectiveness, while EV promotion policies are at 58% effectiveness. Would you like detailed analysis on any specific policy?";
+    }
+    
+    if (lowerMessage.includes('aqi') || lowerMessage.includes('pollution')) {
+        return "Current AQI in Delhi-NCR is 245, which falls in the 'Poor' category. There has been an 18.5% improvement compared to last year. PM2.5 levels are at 128 µg/m³, which is 5.1 times above WHO guidelines.";
+    }
+    
+    if (lowerMessage.includes('feedback') || lowerMessage.includes('citizen')) {
+        return "Citizen feedback analysis shows 65% positive sentiment, 23% neutral, and 12% negative. Top concerns are public transport availability (45%) and enforcement effectiveness (32%).";
+    }
+    
+    if (lowerMessage.includes('recommend') || lowerMessage.includes('suggestion')) {
+        return "I recommend: 1) Extend Odd-Even to commercial vehicles, 2) Increase metro frequency during pollution episodes, 3) Implement stricter construction site monitoring. Would you like detailed cost-benefit analysis for any of these?";
+    }
+    
+    if (lowerMessage.includes('report') || lowerMessage.includes('generate')) {
+        return "You can generate reports from the Reports section. Available report types include Policy Analysis, Citizen Feedback Summary, AQI Trends, and Shelter Utilization reports. What type of report do you need?";
+    }
+    
+    if (lowerMessage.includes('shelter') || lowerMessage.includes('emergency')) {
+        return "There are 52 AQI shelters operational with 68% utilization rate. East Delhi shelter is at full capacity (100%). Health cases reported: 124 in the last week.";
+    }
+    
+    // Default response
+    return "I'm your Policy AI Assistant. I can help you with policy analysis, AQI trends, citizen feedback, recommendations, and report generation. What would you like to know about?";
+}
+
+// ============================================================================
+// MOCK DATA GENERATORS
+// ============================================================================
+
+/**
+ * Generate mock policy dashboard data
+ * @returns {Object} - Mock dashboard data
+ */
+function generateMockPolicyDashboardData() {
+    return {
+        metrics: {
+            effectiveness: 72,
+            approval: 65,
+            feedbackCount: 1245,
+            compliance: 78,
+            sentiment: {
+                positive: 65,
+                neutral: 23,
+                negative: 12
+            }
+        },
+        performance: [72, 65, 58, 41, 68],
+        sentiment: {
+            positive: 65,
+            neutral: 23,
+            negative: 12
+        },
+        recentFeedback: [
+            {
+                title: "Excellent policy implementation",
+                message: "The odd-even scheme has really helped reduce traffic in our area.",
+                sentiment: "positive",
+                policy: "Odd-Even",
+                location: "South Delhi",
+                time: "2 hours ago"
+            },
+            {
+                title: "Need better public transport",
+                message: "More buses needed during odd-even days.",
+                sentiment: "negative",
+                policy: "Odd-Even",
+                location: "East Delhi",
+                time: "1 day ago"
+            },
+            {
+                title: "Construction dust control",
+                message: "Construction sites need better dust management.",
+                sentiment: "neutral",
+                policy: "Construction Regulations",
+                location: "Central Delhi",
+                time: "3 days ago"
+            }
+        ],
+        timeline: [
+            { date: "Nov 15, 2023", event: "Odd-Even Policy Implemented", description: "Phase 1 implementation started" },
+            { date: "Nov 10, 2023", event: "GRAP Phase 2 Activated", description: "Emergency measures implemented" },
+            { date: "Oct 25, 2023", event: "EV Subsidy Launched", description: "New electric vehicle incentives" }
+        ]
+    };
+}
+
+/**
+ * Generate mock policy analysis data
+ * @returns {Object} - Mock policy analysis data
+ */
+function generateMockPolicyAnalysisData() {
+    return {
+        comparison: [
+            { name: "Odd-Even", aqiImpact: 15.2, cost: 4.2, publicSupport: 78.5, implementation: "Excellent", effectiveness: 72, recommendation: "Continue" },
+            { name: "GRAP", aqiImpact: 12.8, cost: 3.8, publicSupport: 65.2, implementation: "Good", effectiveness: 65, recommendation: "Enhance" },
+            { name: "EV Promotion", aqiImpact: 8.5, cost: 5.6, publicSupport: 82.1, implementation: "Good", effectiveness: 58, recommendation: "Continue" },
+            { name: "Construction Regulations", aqiImpact: 5.2, cost: 2.1, publicSupport: 58.4, implementation: "Fair", effectiveness: 41, recommendation: "Modify" },
+            { name: "Industrial Controls", aqiImpact: 18.2, cost: 6.8, publicSupport: 48.7, implementation: "Poor", effectiveness: 68, recommendation: "Review" }
+        ],
+        zones: [
+            { name: "Critical Zones", priority: "critical", description: "Central, East Delhi", status: "Needs Attention" },
+            { name: "High Priority", priority: "high", description: "North, West Delhi", status: "Monitoring" },
+            { name: "Medium Priority", priority: "medium", description: "South Delhi", status: "Stable" },
+            { name: "Low Priority", priority: "low", description: "NCR Regions", status: "Good" }
+        ]
+    };
+}
+
+/**
+ * Generate mock feedback data
+ * @returns {Object} - Mock feedback data
+ */
+function generateMockFeedbackData() {
+    return {
+        feedback: [
+            {
+                title: "Excellent initiative for clean air!",
+                author: "Rajesh Kumar",
+                location: "South Delhi",
+                sentiment: "positive",
+                message: "The odd-even policy has significantly reduced traffic congestion in our area. Air quality feels much better during implementation days.",
+                policy: "Odd-Even",
+                rating: 5,
+                time: "2 days ago"
+            },
+            {
+                title: "Need better public transport",
+                author: "Priya Sharma",
+                location: "East Delhi",
+                sentiment: "suggestion",
+                message: "While the policy is good, there should be more metro frequency and bus services on odd-even days to accommodate increased passengers.",
+                policy: "Odd-Even",
+                rating: 3,
+                time: "1 week ago"
+            },
+            {
+                title: "Construction dust control ineffective",
+                author: "Amit Verma",
+                location: "Central Delhi",
+                sentiment: "negative",
+                message: "Construction sites in our area continue to operate without proper dust control measures. The regulations exist but enforcement is weak.",
+                policy: "Construction Regulations",
+                rating: 1,
+                time: "2 weeks ago"
+            }
+        ],
+        metrics: {
+            total: 1245,
+            positive: 834,
+            neutral: 286,
+            negative: 125
+        }
+    };
+}
+
+/**
+ * Generate mock demographics data
+ * @returns {Object} - Mock demographics data
+ */
+function generateMockDemographicsData() {
+    return {
+        ageDistribution: [35, 40, 18, 7],
+        incomeDistribution: [25, 50, 25],
+        occupationDistribution: [42, 28, 15, 8, 7],
+        zones: [
+            { name: "Central Delhi", responseRate: 78 },
+            { name: "South Delhi", responseRate: 65 },
+            { name: "East Delhi", responseRate: 82 },
+            { name: "North Delhi", responseRate: 71 },
+            { name: "West Delhi", responseRate: 69 }
+        ]
+    };
+}
+
+/**
+ * Generate mock AQI trends data
+ * @returns {Object} - Mock AQI trends data
+ */
+function generateMockAQITrendsData() {
+    return {
+        aqiTrend: [325, 310, 285, 240, 220, 210, 180, 195, 220, 280, 320],
+        seasonalAQI: [325, 185, 95, 145],
+        sourceContribution: {
+            current: [38, 28, 15, 12, 7],
+            previous: [43, 30, 16, 8, 3]
+        }
+    };
+}
+
+/**
+ * Generate mock shelters data
+ * @returns {Object} - Mock shelters data
+ */
+function generateMockSheltersData() {
+    return {
+        totalShelters: 52,
+        totalCapacity: 2150,
+        utilization: 68,
+        healthCases: 124
+    };
+}
+
+/**
+ * Generate mock events data
+ * @returns {Object} - Mock events data
+ */
+function generateMockEventsData() {
+    return {
+        totalEvents: 156,
+        totalParticipants: 12450,
+        satisfactionRate: 84,
+        upcomingEvents: [
+            { name: "Policy Feedback Session", date: "Nov 25", location: "India Habitat Centre" },
+            { name: "EV Awareness Campaign", date: "Nov 28", location: "Select Citywalk Mall" },
+            { name: "Industrial Compliance Workshop", date: "Dec 2", location: "PHD Chamber of Commerce" }
+        ]
+    };
+}
+
+/**
+ * Generate mock reports data
+ * @returns {Array} - Mock reports data
+ */
+function generateMockReportsData() {
+    return [
+        { name: "Policy Effectiveness Q3 2023", type: "Policy Analysis", period: "Jul - Sep 2023", generated: "Oct 15, 2023", size: "2.4 MB", status: "Completed" },
+        { name: "Citizen Feedback Analysis Nov 2023", type: "Feedback Summary", period: "Nov 1-15, 2023", generated: "Nov 18, 2023", size: "1.8 MB", status: "Completed" },
+        { name: "AQI Shelter Utilization Report", type: "Shelter Analysis", period: "Oct 2023", generated: "Nov 5, 2023", size: "3.2 MB", status: "Completed" },
+        { name: "Event Impact Assessment Q3", type: "Event Analysis", period: "Jul - Sep 2023", generated: "Oct 25, 2023", size: "2.1 MB", status: "Completed" },
+        { name: "Annual Policy Review 2023", type: "Annual Report", period: "Jan - Dec 2023", generated: "In Progress", size: "--", status: "Processing" }
+    ];
+}
+
+/**
+ * Generate mock recommendations data
+ * @returns {Object} - Mock recommendations data
+ */
+function generateMockRecommendationsData() {
+    return {
+        recommendations: [
+            { title: "Enhance Odd-Even Policy", priority: "High", impact: "+15% AQI Reduction", cost: "₹2.1 Crores", timeline: "3-4 Months" },
+            { title: "Improve Public Transport", priority: "Medium", impact: "+8% Compliance", cost: "₹5.8 Crores", timeline: "6-8 Months" },
+            { title: "Stricter Construction Regulations", priority: "Critical", impact: "-12% PM10 Levels", cost: "₹3.4 Crores", timeline: "2-3 Months" }
+        ],
+        analytics: {
+            approved: 42,
+            implemented: 28,
+            pending: 14,
+            rejected: 6
+        }
+    };
+}
+
+/**
+ * Generate mock profile data
+ * @returns {Object} - Mock profile data
+ */
+function generateMockProfileData() {
+    return {
+        user: {
+            name: "Policy Analyst",
+            email: "policy@delhi.gov.in",
+            department: "Policy & Planning",
+            designation: "Senior Policy Analyst",
+            phone: "+91 11 2386 0182"
+        },
+        preferences: {
+            notifications: {
+                policyAlerts: true,
+                feedbackUpdates: true,
+                aqiTrends: true,
+                reports: true,
+                emergency: true
+            },
+            reports: {
+                defaultFormat: "pdf",
+                frequency: "monthly"
+            },
+            analytics: {
+                vizCharts: true,
+                vizMaps: true,
+                vizTrends: true,
+                granularity: "daily",
+                exportRawData: true,
+                exportAnalysis: true,
+                exportRecommendations: true
+            }
+        }
+    };
+}
+
+/**
+ * Generate mock notifications
+ * @returns {Array} - Mock notifications
+ */
+function generateMockNotifications() {
+    return [
+        { title: "New Citizen Feedback Available", message: "245 new feedback entries received in the last 24 hours", time: "2 hours ago" },
+        { title: "Policy Alert: Odd-Even Effectiveness", message: "Odd-Even policy shows 15% AQI reduction this week", time: "1 day ago" },
+        { title: "Report Generated Successfully", message: "Monthly policy analysis report for October is ready", time: "2 days ago" },
+        { title: "Emergency Alert: High Pollution Day", message: "AQI expected to reach 350+ tomorrow", time: "3 days ago" }
+    ];
+}
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Handle sidebar navigation
+ * @param {Event} e - Click event
+ */
+function handleSidebarNavigation(e) {
+    e.preventDefault();
+    const section = this.getAttribute('data-section');
+    
+    if (section) {
+        showSection(section);
+        // Close sidebar on mobile
+        if (window.innerWidth < 992) {
+            toggleSidebar();
+        }
+    }
+}
+
+/**
+ * Show policy alerts
+ */
+function showPolicyAlerts() {
+    // Show the most critical policy alert
+    const alertElement = document.getElementById('policyAlert');
+    alertElement.style.display = 'block';
+    
+    // Scroll to alert
+    alertElement.scrollIntoView({ behavior: 'smooth' });
+    
+    // Show notification
+    showAlert('Policy alert displayed. Review critical issues.', 'warning');
+}
+
+/**
+ * Show alert message
+ * @param {string} message - Alert message
+ * @param {string} type - Alert type (success, error, info, warning)
+ */
+function showAlert(message, type = 'info') {
+    // Create alert element
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 80px; right: 20px; z-index: 9999; max-width: 400px;';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Add to page
+    document.body.appendChild(alertDiv);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+/**
+ * Export to PDF function
+ */
+function exportToPDF() {
+    showAlert('PDF export feature would be implemented here. This would generate a comprehensive policy report.', 'info');
+}
+
+/**
+ * Share report function
+ */
+function shareReport() {
+    showAlert('Report sharing feature would be implemented here. This would allow sharing via email or download.', 'info');
+}
+
+// Make functions available globally
+window.initPolicymakerDashboard = initPolicymakerDashboard;
+window.toggleSidebar = toggleSidebar;
+window.showSection = showSection;
+window.logout = logout;
+window.generateReport = generateReport;
+window.exportToPDF = exportToPDF;
+window.shareReport = shareReport;
+
+console.log('policymaker.js loaded successfully');
