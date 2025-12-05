@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQI NCR Delhi - Department Dashboard</title>
+    <meta name="description" content="Department portal for managing pollution complaints and monitoring air quality">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Animate.css for smooth animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/department.css">
+</head>
+<body>
+    <!-- ===== LOADING OVERLAY ===== -->
+    <div class="loader-overlay" id="globalLoader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Loading Department Dashboard...</div>
+    </div>
+
+    <!-- ===== DASHBOARD SECTION ===== -->
+    <div id="dashboard-section" class="app-container">
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
+        <!-- Floating Action Buttons -->
+        <div class="floating-buttons">
+            <div class="floating-btn chatbot" id="floatingChatbotBtn">
+                <i class="fas fa-robot"></i>
+                <span class="floating-badge" id="chatbotBadge" style="display: none;">1</span>
+            </div>
+            <div class="floating-btn microphone" id="floatingMicrophoneBtn">
+                <i class="fas fa-microphone"></i>
+            </div>
+        </div>
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <ul class="sidebar-menu" id="sidebarMenu">
+                <!-- Department Menu -->
+                <li class="department-menu"><a href="#" class="active" data-section="department-dashboard"><i class="fas fa-tachometer-alt"></i> Department Dashboard</a></li>
+                <li class="department-menu"><a href="#" data-section="complaint-management"><i class="fas fa-tasks"></i> Complaint Management</a></li>
+                <li class="department-menu"><a href="#" data-section="department-reports"><i class="fas fa-chart-bar"></i> Reports & Analytics</a></li>
+                <li class="department-menu"><a href="#" data-section="shelters-management"><i class="fas fa-shield-alt"></i> AQI Shelters Management</a></li>
+                <li class="department-menu"><a href="#" data-section="events-management"><i class="fas fa-calendar-alt"></i> Events Management</a></li>
+                <li class="department-menu"><a href="#" data-section="policy-rating"><i class="fas fa-star"></i> Policy Rating View</a></li>
+                <li class="department-menu"><a href="#" data-section="profile"><i class="fas fa-user-cog"></i> Profile Settings</a></li>
+                
+                <!-- Common Menu Items -->
+                <li><a href="#" id="logout-sidebar"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <div class="main-content" id="mainContent">
+            <!-- Header Section -->
+            <header class="app-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <span class="logo-text">DPCC Department Portal</span>
+                        <span class="points-badge" id="headerPoints">Dept ID: DPCC001</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="header-icon" id="translateBtn" title="Translate">
+                        <i class="fas fa-language"></i>
+                    </button>
+                    <button class="header-icon" id="notificationsBtn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationCount">0</span>
+                    </button>
+                    <button class="header-icon" id="profileBtn">
+                        <i class="fas fa-user"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Department Dashboard Section -->
+            <section class="content-section active" id="department-dashboard-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary"><i class="fas fa-tachometer-alt me-2"></i>Department Dashboard</h2>
+                        <p class="text-muted">Complaint management and resolution tracking for Delhi Pollution Control Committee</p>
+                    </div>
+                </div>
+                
+                <!-- Department Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="dashboard-card department-stat-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
+                                <h5>Total Complaints</h5>
+                                <div class="h3 fw-bold" id="total-complaints">0</div>
+                                <small class="text-muted">This Month</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="dashboard-card department-stat-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clock fa-2x text-danger mb-3"></i>
+                                <h5>Pending</h5>
+                                <div class="h3 fw-bold" id="pending-complaints">0</div>
+                                <small class="text-muted">Awaiting action</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="dashboard-card department-stat-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-spinner fa-2x text-info mb-3"></i>
+                                <h5>In Progress</h5>
+                                <div class="h3 fw-bold" id="inprogress-complaints">0</div>
+                                <small class="text-muted">Being processed</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="dashboard-card department-stat-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-check-circle fa-2x text-success mb-3"></i>
+                                <h5>Resolved</h5>
+                                <div class="h3 fw-bold" id="resolved-complaints">0</div>
+                                <small class="text-muted">This Month</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Performance Overview -->
+                <div class="row mb-4">
+                    <div class="col-md-8 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-chart-line me-2"></i>Performance Overview</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="performanceChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-tasks me-2"></i>Priority Distribution</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="priorityChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Complaints & AQI Overview -->
+                <div class="row mb-4">
+                    <div class="col-lg-8 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-list me-2"></i>Recent Complaints</h4>
+                                <button class="btn btn-sm btn-primary" onclick="showSection('complaint-management')">View All</button>
+                            </div>
+                            <div class="card-body">
+                                <div id="recentComplaints">
+                                    <div class="text-center text-muted py-4">
+                                        <div class="spinner-border spinner-border-sm"></div>
+                                        <p class="mt-2">Loading recent complaints...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-wind me-2"></i>Current AQI Status</h4>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="display-4 fw-bold mb-2" id="current-aqi-value">245</div>
+                                <div class="badge fs-5 px-3 py-2 mb-3 aqi-poor">Poor</div>
+                                <div class="progress mb-3" style="height: 10px;">
+                                    <div class="progress-bar aqi-poor" style="width: 49%"></div>
+                                </div>
+                                <div class="row text-center small">
+                                    <div class="col-6">
+                                        <div>PM2.5</div>
+                                        <div class="fw-bold">105 μg/m³</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div>Temperature</div>
+                                        <div class="fw-bold">28°C</div>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <a href="#" class="btn btn-sm btn-outline-primary" onclick="showSection('complaint-management')">View AQI Map</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Department Tasks & Alerts -->
+                <div class="row">
+                    <div class="col-lg-6 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-bell me-2"></i>Department Alerts</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-warning d-flex align-items-center mb-3">
+                                    <i class="fas fa-exclamation-triangle me-3 fa-lg"></i>
+                                    <div>
+                                        <h6 class="mb-1">High Priority Complaint</h6>
+                                        <p class="mb-0 small">Complaint #1245 requires immediate attention in Okhla Industrial Area</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-info d-flex align-items-center mb-3">
+                                    <i class="fas fa-info-circle me-3 fa-lg"></i>
+                                    <div>
+                                        <h6 class="mb-1">Monthly Report Due</h6>
+                                        <p class="mb-0 small">Monthly performance report submission due in 3 days</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-success d-flex align-items-center">
+                                    <i class="fas fa-check-circle me-3 fa-lg"></i>
+                                    <div>
+                                        <h6 class="mb-1">Training Session</h6>
+                                        <p class="mb-0 small">New complaint handling training scheduled for tomorrow</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Quick Actions</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <button class="btn btn-outline-primary w-100 mb-2" onclick="showSection('complaint-management')">
+                                            <i class="fas fa-plus me-1"></i> New Complaint
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button class="btn btn-outline-success w-100 mb-2" onclick="generateReport('daily')">
+                                            <i class="fas fa-file-pdf me-1"></i> Daily Report
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button class="btn btn-outline-warning w-100 mb-2" onclick="showSection('shelters-management')">
+                                            <i class="fas fa-shield-alt me-1"></i> Manage Shelters
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button class="btn btn-outline-info w-100 mb-2" onclick="showSection('events-management')">
+                                            <i class="fas fa-calendar-plus me-1"></i> Add Event
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button class="btn btn-outline-secondary w-100 mb-2" onclick="assignBulkComplaints()">
+                                            <i class="fas fa-users me-1"></i> Assign Team
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button class="btn btn-outline-danger w-100 mb-2" onclick="showEmergencyProtocol()">
+                                            <i class="fas fa-exclamation me-1"></i> Emergency Protocol
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Complaint Management Section -->
+            <section class="content-section" id="complaint-management-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary"><i class="fas fa-tasks me-2"></i>Complaint Management</h2>
+                        <p class="text-muted">Manage and resolve pollution complaints</p>
+                    </div>
+                </div>
+                
+                <!-- Complaint Filters -->
+                <div class="dashboard-card mb-4">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" id="filterStatus">
+                                    <option value="all">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="in-progress">In Progress</option>
+                                    <option value="resolved">Resolved</option>
+                                    <option value="rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Priority</label>
+                                <select class="form-select" id="filterPriority">
+                                    <option value="all">All Priority</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                    <option value="critical">Critical</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Complaint Type</label>
+                                <select class="form-select" id="filterType">
+                                    <option value="all">All Types</option>
+                                    <option value="industrial_pollution">Industrial Pollution</option>
+                                    <option value="vehicle_emission">Vehicle Emission</option>
+                                    <option value="construction_dust">Construction Dust</option>
+                                    <option value="waste_burning">Waste Burning</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Date Range</label>
+                                <select class="form-select" id="filterDate">
+                                    <option value="all">All Time</option>
+                                    <option value="today">Today</option>
+                                    <option value="week">This Week</option>
+                                    <option value="month">This Month</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <button class="btn btn-primary" onclick="filterComplaints()">
+                                    <i class="fas fa-filter me-1"></i> Apply Filters
+                                </button>
+                                <button class="btn btn-outline-secondary ms-2" onclick="resetFilters()">
+                                    <i class="fas fa-redo me-1"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bulk Actions -->
+                <div class="dashboard-card mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Bulk Actions</h5>
+                            <div class="d-flex gap-2">
+                                <select class="form-select form-select-sm" id="bulkAction" style="width: 150px;">
+                                    <option value="">Select Action</option>
+                                    <option value="assign">Assign to Officer</option>
+                                    <option value="status">Change Status</option>
+                                    <option value="priority">Change Priority</option>
+                                    <option value="export">Export Selected</option>
+                                </select>
+                                <button class="btn btn-sm btn-primary" onclick="performBulkAction()">
+                                    <i class="fas fa-play me-1"></i> Apply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Complaints Table -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h4 class="mb-0">All Complaints</h4>
+                        <div class="d-flex align-items-center">
+                            <span class="me-3" id="totalCount">0 complaints</span>
+                            <button class="btn btn-sm btn-outline-success" onclick="exportComplaints()">
+                                <i class="fas fa-download me-1"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="complaintsTable">
+                                <thead>
+                                    <tr>
+                                        <th width="30">
+                                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                                        </th>
+                                        <th>ID</th>
+                                        <th>Type</th>
+                                        <th>Location</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Assigned To</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="complaintsTableBody">
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted py-4">
+                                            <div class="spinner-border text-primary"></div>
+                                            <p class="mt-2">Loading complaints...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <nav aria-label="Complaints pagination" class="mt-3">
+                            <ul class="pagination justify-content-center" id="pagination">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports & Analytics Section -->
+            <section class="content-section" id="department-reports-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary"><i class="fas fa-chart-bar me-2"></i>Reports & Analytics</h2>
+                        <p class="text-muted">Generate reports and analyze complaint data</p>
+                    </div>
+                </div>
+                
+                <!-- Report Generation Options -->
+                <div class="dashboard-card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Generate Report</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Report Type</label>
+                                <select class="form-select" id="reportType">
+                                    <option value="performance">Performance Report</option>
+                                    <option value="complaints">Complaints Analysis</option>
+                                    <option value="resolution">Resolution Time</option>
+                                    <option value="geographic">Geographic Distribution</option>
+                                    <option value="custom">Custom Report</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Time Period</label>
+                                <select class="form-select" id="reportPeriod">
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly" selected>Monthly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                    <option value="yearly">Yearly</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="reportStartDate" value="2023-11-01">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">End Date</label>
+                                <input type="date" class="form-control" id="reportEndDate" value="2023-11-30">
+                            </div>
+                            <div class="col-12">
+                                <button class="btn btn-primary" onclick="generateReport()">
+                                    <i class="fas fa-file-pdf me-1"></i> Generate Report
+                                </button>
+                                <button class="btn btn-outline-success ms-2" onclick="generateExcelReport()">
+                                    <i class="fas fa-file-excel me-1"></i> Export to Excel
+                                </button>
+                                <button class="btn btn-outline-info ms-2" onclick="showReportPreview()">
+                                    <i class="fas fa-eye me-1"></i> Preview
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Dashboard -->
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Complaint Type Distribution</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="complaintTypeChart" height="250"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-chart-line me-2"></i>Resolution Time Trends</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="resolutionTimeChart" height="250"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Geographic Distribution -->
+                <div class="dashboard-card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Geographic Distribution</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="map-container" id="complaintMap" style="height: 300px;"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <h5>Hotspot Areas</h5>
+                                <div id="hotspotAreas">
+                                    <div class="hotspot-item border-bottom pb-2 mb-2">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Okhla Industrial Area</span>
+                                            <span class="badge bg-danger">45 complaints</span>
+                                        </div>
+                                        <small class="text-muted">Industrial pollution hotspot</small>
+                                    </div>
+                                    <div class="hotspot-item border-bottom pb-2 mb-2">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Connaught Place</span>
+                                            <span class="badge bg-warning">32 complaints</span>
+                                        </div>
+                                        <small class="text-muted">Vehicle emission hotspot</small>
+                                    </div>
+                                    <div class="hotspot-item border-bottom pb-2 mb-2">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Dwarka Sector 12</span>
+                                            <span class="badge bg-info">28 complaints</span>
+                                        </div>
+                                        <small class="text-muted">Waste burning hotspot</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Department KPIs -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-trophy me-2"></i>Department KPIs</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="kpi-card">
+                                    <div class="kpi-value">85%</div>
+                                    <div class="kpi-label">Resolution Rate</div>
+                                    <small class="text-muted">Target: 90%</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="kpi-card">
+                                    <div class="kpi-value">24h</div>
+                                    <div class="kpi-label">Avg Response Time</div>
+                                    <small class="text-muted">Target: 12h</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="kpi-card">
+                                    <div class="kpi-value">4.2/5</div>
+                                    <div class="kpi-label">Citizen Satisfaction</div>
+                                    <small class="text-muted">Based on 245 reviews</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-3">
+                                <div class="kpi-card">
+                                    <div class="kpi-value">92%</div>
+                                    <div class="kpi-label">On-Time Completion</div>
+                                    <small class="text-muted">Within SLA</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AQI Shelters Management Section -->
+            <section class="content-section" id="shelters-management-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary"><i class="fas fa-shield-alt me-2"></i>AQI Shelters Management</h2>
+                        <p class="text-muted">Manage clean air shelters across Delhi-NCR</p>
+                    </div>
+                </div>
+                
+                <!-- Shelter Management Controls -->
+                <div class="dashboard-card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Manage Shelters</h4>
+                        <button class="btn btn-sm btn-primary" onclick="openAddShelterModal()">
+                            <i class="fas fa-plus me-1"></i> Add New Shelter
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    <input type="text" class="form-control" placeholder="Search shelters..." id="shelterSearch">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="shelterStatusFilter">
+                                    <option value="all">All Status</option>
+                                    <option value="available">Available</option>
+                                    <option value="limited">Limited</option>
+                                    <option value="full">Full</option>
+                                    <option value="maintenance">Under Maintenance</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="shelterZoneFilter">
+                                    <option value="all">All Zones</option>
+                                    <option value="north">North Delhi</option>
+                                    <option value="south">South Delhi</option>
+                                    <option value="east">East Delhi</option>
+                                    <option value="west">West Delhi</option>
+                                    <option value="central">Central Delhi</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-primary w-100" onclick="filterShelters()">
+                                    <i class="fas fa-filter me-1"></i> Filter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Shelters Grid -->
+                <div class="row" id="sheltersGrid">
+                    <div class="col-md-4 mb-3">
+                        <div class="shelter-management-card">
+                            <div class="shelter-card-header available">
+                                <h5 class="mb-0">Central Delhi Shelter</h5>
+                                <span class="shelter-status">Available</span>
+                            </div>
+                            <div class="shelter-card-body">
+                                <p class="text-muted mb-2"><i class="fas fa-map-marker-alt me-1"></i> Connaught Place, New Delhi</p>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span><i class="fas fa-user me-1"></i> Capacity: 50</span>
+                                    <span><i class="fas fa-users me-1"></i> Occupied: 15</span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="badge bg-primary me-1"><i class="fas fa-wind me-1"></i> Air Purifiers</span>
+                                    <span class="badge bg-success me-1"><i class="fas fa-user-md me-1"></i> Medical Staff</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editShelter(1)">
+                                        <i class="fas fa-edit me-1"></i> Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info" onclick="viewShelterDetails(1)">
+                                        <i class="fas fa-info-circle me-1"></i> Details
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" onclick="updateShelterStatus(1, 'maintenance')">
+                                        <i class="fas fa-tools me-1"></i> Maintenance
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- More shelter cards would be dynamically generated -->
+                </div>
+                
+                <!-- Shelter Utilization Chart -->
+                <div class="dashboard-card mt-4">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Shelter Utilization Analysis</h4>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="shelterUtilizationChart" height="100"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Events Management Section -->
+            <section class="content-section" id="events-management-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary"><i class="fas fa-calendar-alt me-2"></i>Events Management</h2>
+                        <p class="text-muted">Organize and manage environmental awareness events</p>
+                    </div>
+                </div>
+                
+                <!-- Event Management Controls -->
+                <div class="dashboard-card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Events Calendar</h4>
+                        <button class="btn btn-sm btn-primary" onclick="openAddEventModal()">
+                            <i class="fas fa-plus me-1"></i> Create Event
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="eventsCalendar"></div>
+                    </div>
+                </div>
+                
+                <!-- Upcoming Events -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Upcoming Events</h4>
+                        <button class="btn btn-sm btn-outline-primary" onclick="openAddEventModal()">
+                            <i class="fas fa-plus me-1"></i> Add Event
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Event Name</th>
+                                        <th>Date & Time</th>
+                                        <th>Location</th>
+                                        <th>Type</th>
+                                        <th>Attendees</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="eventsTable">
+                                    <tr>
+                                        <td>Clean Air Awareness Workshop</td>
+                                        <td>15 Nov 2023, 10:00 AM</td>
+                                        <td>India Habitat Centre</td>
+                                        <td><span class="badge bg-primary">Workshop</span></td>
+                                        <td>45/100</td>
+                                        <td><span class="badge bg-success">Active</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="editEvent(1)">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-info" onclick="viewEventDetails(1)">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-success" onclick="manageAttendees(1)">
+                                                <i class="fas fa-users"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <!-- More events would be dynamically added -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Policy Rating View Section -->
+            <section class="content-section" id="policy-rating-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary"><i class="fas fa-star me-2"></i>Policy Rating View</h2>
+                        <p class="text-muted">View citizen feedback on government policies</p>
+                    </div>
+                </div>
+                
+                <!-- Policy Ratings Overview -->
+                <div class="dashboard-card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Policy Performance Overview</h4>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="policyRatingChart" height="100"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Detailed Policy Ratings -->
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0">Odd-Even Policy</h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="display-4 fw-bold mb-2">4.2</div>
+                                <div class="rating-stars mb-3">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star-half-alt text-warning"></i>
+                                </div>
+                                <p class="small text-muted">Based on 245 ratings</p>
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewPolicyFeedback('odd-even')">
+                                    <i class="fas fa-comments me-1"></i> View Feedback
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0">GRAP Implementation</h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="display-4 fw-bold mb-2">3.8</div>
+                                <div class="rating-stars mb-3">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="far fa-star text-warning"></i>
+                                </div>
+                                <p class="small text-muted">Based on 189 ratings</p>
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewPolicyFeedback('grap')">
+                                    <i class="fas fa-comments me-1"></i> View Feedback
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0">EV Promotion</h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="display-4 fw-bold mb-2">4.5</div>
+                                <div class="rating-stars mb-3">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                </div>
+                                <p class="small text-muted">Based on 156 ratings</p>
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewPolicyFeedback('ev')">
+                                    <i class="fas fa-comments me-1"></i> View Feedback
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Citizen Feedback -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Recent Citizen Feedback</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="citizenFeedback">
+                            <div class="feedback-item border-bottom pb-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1">Rahul Sharma</h6>
+                                        <div class="rating-stars small">
+                                            <i class="fas fa-star text-warning"></i>
+                                            <i class="fas fa-star text-warning"></i>
+                                            <i class="fas fa-star text-warning"></i>
+                                            <i class="fas fa-star text-warning"></i>
+                                            <i class="fas fa-star text-warning"></i>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">2 days ago</small>
+                                </div>
+                                <p class="mb-0">"The Odd-Even policy has significantly reduced traffic congestion in my area. Air quality feels better during implementation days."</p>
+                                <small class="text-muted">Policy: Odd-Even Vehicle Policy</small>
+                            </div>
+                            <!-- More feedback items would be dynamically added -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile Settings Section -->
+            <section class="content-section" id="profile-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary"><i class="fas fa-user-cog me-2"></i>Profile Settings</h2>
+                        <p class="text-muted">Manage your department profile and settings</p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-lg-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Department Information</h4>
+                            </div>
+                            <div class="card-body">
+                                <form id="departmentProfileForm">
+                                    <div class="mb-3">
+                                        <label for="deptName" class="form-label">Department Name</label>
+                                        <input type="text" class="form-control" id="deptName" value="Delhi Pollution Control Committee" readonly>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="deptCode" class="form-label">Department Code</label>
+                                        <input type="text" class="form-control" id="deptCode" value="DPCC001" readonly>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="deptEmail" class="form-label">Contact Email</label>
+                                        <input type="email" class="form-control" id="deptEmail" value="dpcc@delhi.gov.in">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="deptPhone" class="form-label">Contact Phone</label>
+                                        <input type="tel" class="form-control" id="deptPhone" value="011-2386 0182">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="deptAddress" class="form-label">Address</label>
+                                        <textarea class="form-control" id="deptAddress" rows="2">DPCC Office, ISBT Building, Kashmere Gate, Delhi - 110006</textarea>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">Update Department Info</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Officer Information</h4>
+                            </div>
+                            <div class="card-body">
+                                <form id="officerProfileForm">
+                                    <div class="mb-3">
+                                        <label for="officerName" class="form-label">Officer Name</label>
+                                        <input type="text" class="form-control" id="officerName" value="Rajesh Kumar">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="officerDesignation" class="form-label">Designation</label>
+                                        <input type="text" class="form-control" id="officerDesignation" value="Senior Environmental Officer">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="officerEmail" class="form-label">Email Address</label>
+                                        <input type="email" class="form-control" id="officerEmail" value="rajesh.kumar@dpcc.gov.in">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="officerMobile" class="form-label">Mobile Number</label>
+                                        <input type="tel" class="form-control" id="officerMobile" value="9876543210">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="officerRole" class="form-label">Role in Department</label>
+                                        <select class="form-select" id="officerRole">
+                                            <option value="admin">Administrator</option>
+                                            <option value="supervisor" selected>Supervisor</option>
+                                            <option value="officer">Field Officer</option>
+                                            <option value="analyst">Data Analyst</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">Update Officer Info</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notification Preferences -->
+                <div class="dashboard-card mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0">Notification Preferences</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="notifyNewComplaint" checked>
+                                    <label class="form-check-label" for="notifyNewComplaint">New Complaint Assignments</label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="notifyEscalation" checked>
+                                    <label class="form-check-label" for="notifyEscalation">Escalated Complaints</label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="notifyDeadline" checked>
+                                    <label class="form-check-label" for="notifyDeadline">Approaching Deadlines</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="notifyReport" checked>
+                                    <label class="form-check-label" for="notifyReport">Report Generation</label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="notifyMaintenance">
+                                    <label class="form-check-label" for="notifyMaintenance">Shelter Maintenance</label>
+                                </div>
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="notifyEmergency" checked>
+                                    <label class="form-check-label" for="notifyEmergency">Emergency Alerts</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="saveNotificationPreferences()">
+                            Save Preferences
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Notification Panel -->
+        <div class="notification-panel" id="notificationPanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Department Notifications</h5>
+                <button class="btn btn-sm btn-outline-secondary" id="markAllRead">
+                    <i class="fas fa-check-double me-1"></i>Mark All Read
+                </button>
+            </div>
+            <div id="notificationPanelContent">
+                <div class="text-center text-muted py-4">
+                    <p>No new notifications</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Panel -->
+        <div class="profile-panel" id="profilePanel">
+            <div class="profile-header">
+                <div class="profile-avatar department">
+                    <i class="fas fa-building"></i>
+                </div>
+                <h5 id="profileUserName">Rajesh Kumar</h5>
+                <p class="text-muted" id="profileUserLocation">Senior Environmental Officer</p>
+                <div class="points-badge">DPCC001</div>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <i class="fas fa-user me-2"></i>Edit Profile
+                </li>
+                <li class="list-group-item">
+                    <i class="fas fa-bell me-2"></i>Notification Settings
+                </li>
+                <li class="list-group-item">
+                    <i class="fas fa-shield-alt me-2"></i>Privacy & Security
+                </li>
+                <li class="list-group-item">
+                    <i class="fas fa-question-circle me-2"></i>Help & Support
+                </li>
+                <li class="list-group-item text-danger" id="logout-profile">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </li>
+            </ul>
+        </div>
+
+        <!-- Voice Assistant Panel -->
+        <div class="voice-panel" id="voicePanel">
+            <div class="voice-header">
+                <h5 class="mb-0">Department Assistant</h5>
+                <button class="btn-close btn-close-white" id="closeVoice"></button>
+            </div>
+            <div class="voice-body">
+                <div class="voice-status" id="voiceStatus">Click microphone to start</div>
+                <div class="voice-commands">
+                    <h6>Available Commands:</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-microphone me-2 text-primary"></i>"Show pending complaints"</li>
+                        <li><i class="fas fa-microphone me-2 text-primary"></i>"Generate daily report"</li>
+                        <li><i class="fas fa-microphone me-2 text-primary"></i>"Update complaint status"</li>
+                        <li><i class="fas fa-microphone me-2 text-primary"></i>"Check AQI levels"</li>
+                        <li><i class="fas fa-microphone me-2 text-primary"></i>"Shelter status"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chatbot Panel -->
+        <div class="chatbot-panel" id="chatbotPanel">
+            <div class="chatbot-header">
+                <h5 class="mb-0">Department Assistant</h5>
+                <div>
+                    <select class="language-selector" id="chatbotLanguage">
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                    </select>
+                    <button class="btn-close btn-close-white" id="closeChatbot"></button>
+                </div>
+            </div>
+            <div class="chatbot-body" id="chatbotMessages">
+                <div class="message bot-message">
+                    Hello! I'm your department assistant. How can I help you manage complaints and reports today?
+                </div>
+            </div>
+            <div class="chatbot-footer">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="chatbotInput" placeholder="Type your message...">
+                    <button class="btn btn-primary" id="sendChatbotMessage">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Translation Panel -->
+        <div class="notification-panel" id="translationPanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Translate Page</h5>
+                <button class="btn-close" id="closeTranslation"></button>
+            </div>
+            <div class="mb-3">
+                <label for="translationLanguage" class="form-label">Select Language</label>
+                <select class="form-select" id="translationLanguage">
+                    <option value="en">English</option>
+                    <option value="hi">Hindi</option>
+                </select>
+            </div>
+            <button class="btn btn-primary w-100" id="applyTranslation">Apply Translation</button>
+        </div>
+    </div>
+
+    <!-- ===== MODALS ===== -->
+    <!-- Add/Edit Shelter Modal -->
+    <div class="modal fade" id="shelterModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Manage Shelter</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="shelterForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Shelter Name</label>
+                                <input type="text" class="form-control" id="shelterName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Zone</label>
+                                <select class="form-select" id="shelterZone" required>
+                                    <option value="">Select Zone</option>
+                                    <option value="north">North Delhi</option>
+                                    <option value="south">South Delhi</option>
+                                    <option value="east">East Delhi</option>
+                                    <option value="west">West Delhi</option>
+                                    <option value="central">Central Delhi</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Capacity</label>
+                                <input type="number" class="form-control" id="shelterCapacity" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Current Occupancy</label>
+                                <input type="number" class="form-control" id="shelterOccupancy" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <textarea class="form-control" id="shelterAddress" rows="2" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Facilities</label>
+                            <div class="row">
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="facilityAirPurifiers">
+                                        <label class="form-check-label" for="facilityAirPurifiers">Air Purifiers</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="facilityMedical">
+                                        <label class="form-check-label" for="facilityMedical">Medical Staff</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="facilityMasks">
+                                        <label class="form-check-label" for="facilityMasks">Masks</label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="facilityWater">
+                                        <label class="form-check-label" for="facilityWater">Drinking Water</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveShelter()">Save Shelter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Event Modal -->
+    <div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Manage Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="eventForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Event Name</label>
+                                <input type="text" class="form-control" id="eventName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Event Type</label>
+                                <select class="form-select" id="eventType" required>
+                                    <option value="">Select Type</option>
+                                    <option value="workshop">Workshop</option>
+                                    <option value="seminar">Seminar</option>
+                                    <option value="campaign">Campaign</option>
+                                    <option value="training">Training</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Start Date & Time</label>
+                                <input type="datetime-local" class="form-control" id="eventStart" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">End Date & Time</label>
+                                <input type="datetime-local" class="form-control" id="eventEnd" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Location</label>
+                            <input type="text" class="form-control" id="eventLocation" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="eventDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Max Attendees</label>
+                                <input type="number" class="form-control" id="eventMaxAttendees">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Event Status</label>
+                                <select class="form-select" id="eventStatus">
+                                    <option value="planned">Planned</option>
+                                    <option value="active">Active</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEvent()">Save Event</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaint Details Modal -->
+    <div class="modal fade" id="complaintDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Complaint Details - <span id="complaintModalId"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="complaintDetailsContent">
+                    <!-- Complaint details will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="updateComplaintStatusModal()">Update Status</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== EXTERNAL LIBRARIES ===== -->
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Leaflet JS for maps -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Application Scripts -->
+    <script src="assets/js/shared.js"></script>
+    <script src="assets/js/department.js"></script>
+</body>
+</html>
