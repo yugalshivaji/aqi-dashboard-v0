@@ -3,152 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Citizen Dashboard - Delhi-NCR Pollution Monitor</title>
+    <title>Citizen Dashboard | AQI NCR Delhi - Gov Edition</title>
+    
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet CSS for Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+    
     <style>
-        /* Same CSS as index.html */
-        :root {
-            --primary-color: #2E8B57;
-            --secondary-color: #228B22;
-            --accent-color: #32CD32;
-            --dark-color: #1a3c27;
-            --light-color: #f5f9f7;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-            color: #333;
-        }
-        
-        .navbar {
-            background-color: var(--dark-color);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .navbar-brand {
-            font-weight: 700;
-            color: white !important;
-        }
-        
-        .nav-link {
-            color: rgba(255,255,255,0.85) !important;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        
-        .nav-link:hover {
-            color: white !important;
-        }
-        
-        .section-title {
-            color: var(--dark-color);
-            margin-bottom: 30px;
-            position: relative;
-            padding-bottom: 15px;
-        }
-        
-        .section-title:after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 60px;
-            height: 3px;
-            background-color: var(--primary-color);
-        }
-        
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transition: transform 0.3s, box-shadow 0.3s;
-            margin-bottom: 20px;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        
-        .card-header {
-            background-color: var(--primary-color);
+        /* Citizen-specific styles */
+        .citizen-feature-badge {
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
             color: white;
-            border-radius: 10px 10px 0 0 !important;
-            font-weight: 600;
-        }
-        
-        .aqi-badge {
             padding: 8px 15px;
             border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 0 5px 10px 0;
+            display: inline-block;
+        }
+        
+        .health-tip-card {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-left: 5px solid #28a745;
+        }
+        
+        .complaint-status {
             font-weight: 600;
-            font-size: 14px;
+            font-size: 0.9rem;
         }
         
-        .aqi-good { background-color: #4CAF50; color: white; }
-        .aqi-moderate { background-color: #FFC107; color: black; }
-        .aqi-unhealthy-sensitive { background-color: #FF9800; color: white; }
-        .aqi-unhealthy { background-color: #F44336; color: white; }
-        .aqi-very-unhealthy { background-color: #9C27B0; color: white; }
-        .aqi-hazardous { background-color: #795548; color: white; }
+        .status-pending { color: #6c757d; }
+        .status-inprogress { color: #0dcaf0; }
+        .status-resolved { color: #198754; }
         
-        .footer {
-            background-color: var(--dark-color);
+        .breathing-animation {
+            animation: breathe 4s infinite ease-in-out;
+        }
+        
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .ar-overlay {
+            background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 40px 0 20px;
-        }
-        
-        .footer a {
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        
-        .footer a:hover {
-            color: white;
-        }
-        
-        .health-alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        
-        .alert-low { background-color: #E8F5E9; border-left: 4px solid #4CAF50; }
-        .alert-medium { background-color: #FFF3E0; border-left: 4px solid #FF9800; }
-        .alert-high { background-color: #FFEBEE; border-left: 4px solid #F44336; }
-        
-        .location-selector {
-            background-color: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-        
-        .forecast-item {
             text-align: center;
-            padding: 15px;
-            border-radius: 8px;
-            background-color: #f8f9fa;
-            margin-bottom: 10px;
-        }
-        
-        @media (max-width: 768px) {
-            .section-title {
-                font-size: 1.5rem;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <!-- Loading Overlay -->
+    <div class="loader-overlay" id="globalLoader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Loading Citizen Dashboard...</div>
+    </div>
+
+    <!-- Government Header -->
+    <div class="gov-header">
         <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <i class="fas fa-leaf me-2"></i>Delhi-NCR Pollution Monitor
+            <div class="left-text">
+                <strong>GOVT. OF NCT OF DELHI</strong> | Citizen Portal (Jan Bhagidari)
+            </div>
+            <div class="right-logos">
+                <span class="badge bg-success">Live Monitoring</span>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Flag_of_India.svg/640px-Flag_of_India.svg.png" 
+                     alt="Indian Flag" height="25" style="border-radius: 3px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-gov">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-gov" href="index.html">
+                <i class="fas fa-wind"></i>AQI NCR Delhi - Citizen Portal
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -156,508 +96,1570 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="index.html">Home</a>
+                        <a class="nav-link" href="index.html">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="citizen-dashboard.html">Citizen Dashboard</a>
+                        <span class="nav-link text-primary">
+                            <i class="fas fa-user me-1"></i>
+                            <span id="userName">Citizen</span>
+                        </span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="policy-dashboard.html">Policy Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="about.html">About</a>
+                        <button class="btn btn-danger btn-sm ms-2" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </button>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Citizen Dashboard Content -->
-    <div class="container my-5">
-        <div class="row">
-            <div class="col-12">
-                <h1 class="section-title">Citizen Dashboard</h1>
-                <p class="lead">Real-time pollution data, health alerts, and personalized recommendations for your area.</p>
+    <!-- Main Container -->
+    <div class="app-container" id="appContainer">
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
+        <!-- Floating Action Buttons -->
+        <div class="floating-buttons">
+            <div class="floating-btn chatbot" id="floatingChatbotBtn" title="AI Assistant">
+                <i class="fas fa-robot"></i>
+                <span class="floating-badge" id="chatbotBadge" style="display: none;">1</span>
+            </div>
+            <div class="floating-btn microphone" id="floatingMicrophoneBtn" title="Voice Commands">
+                <i class="fas fa-microphone"></i>
+            </div>
+            <div class="floating-btn emergency" id="floatingEmergencyBtn" title="Emergency Help" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+                <i class="fas fa-phone-alt"></i>
             </div>
         </div>
         
-        <!-- Location Selector -->
-        <div class="location-selector">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h5 class="mb-3">Select Your Location</h5>
-                    <div class="input-group">
-                        <select class="form-select" id="locationSelect">
-                            <option value="delhi">Delhi</option>
-                            <option value="gurugram">Gurugram</option>
-                            <option value="noida">Noida</option>
-                            <option value="faridabad">Faridabad</option>
-                            <option value="ghaziabad">Ghaziabad</option>
-                        </select>
-                        <button class="btn btn-success" type="button" id="updateLocation">
-                            <i class="fas fa-sync-alt me-2"></i>Update
-                        </button>
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <ul class="sidebar-menu" id="sidebarMenu">
+                <li><a href="#" class="active" data-section="dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="#" data-section="complaints"><i class="fas fa-exclamation-triangle"></i> Submit Complaint</a></li>
+                <li><a href="#" data-section="tracking"><i class="fas fa-tasks"></i> Complaint Tracking</a></li>
+                <li><a href="#" data-section="map"><i class="fas fa-map-marked-alt"></i> AQI Map</a></li>
+                <li><a href="#" data-section="hospitals"><i class="fas fa-hospital"></i> Nearby Hospitals</a></li>
+                <li><a href="#" data-section="shelters"><i class="fas fa-shield-alt"></i> AQI Shelters</a></li>
+                <li><a href="#" data-section="insurance"><i class="fas fa-file-medical"></i> Health Insurance</a></li>
+                <li><a href="#" data-section="events"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                <li><a href="#" data-section="ar"><i class="fas fa-vr-cardboard"></i> AR Vision</a></li>
+                <li><a href="#" data-section="health"><i class="fas fa-lungs"></i> Health & Breathing</a></li>
+                <li><a href="#" data-section="policy-rating"><i class="fas fa-star"></i> Policy Rating</a></li>
+                <li><a href="#" data-section="profile"><i class="fas fa-user-cog"></i> Profile Settings</a></li>
+                <li><a href="#" id="logout-sidebar"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <div class="main-content" id="mainContent">
+            <!-- ===== DASHBOARD SECTION ===== -->
+            <section class="content-section active" id="dashboard-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-tachometer-alt me-2"></i>Citizen Dashboard
+                        </h2>
+                        <p class="text-muted">Welcome back! Here's your personalized air quality overview.</p>
+                        <div class="d-flex align-items-center">
+                            <span class="real-time-indicator">Live Data</span>
+                            <span class="ms-3 text-muted small">Last updated: <span id="lastUpdated">Loading...</span></span>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="d-flex justify-content-end">
-                        <div class="text-center me-4">
-                            <h4 id="current-location-aqi" class="mb-0">-</h4>
-                            <small>Current AQI</small>
-                        </div>
-                        <div>
-                            <span id="current-location-status" class="aqi-badge">Loading...</span>
+
+                <!-- Health Alert -->
+                <div class="row mb-4" id="healthAlert" style="display: none;">
+                    <div class="col-12">
+                        <div class="alert alert-warning d-flex align-items-center custom-alert" role="alert">
+                            <i class="fas fa-exclamation-triangle me-3 fa-2x"></i>
+                            <div>
+                                <h5 class="alert-heading mb-1" id="alertTitle">Health Alert</h5>
+                                <p class="mb-0" id="alertMessage">Current air quality may affect sensitive individuals.</p>
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Main AQI Display -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-body text-center py-5">
+                                <h3 class="text-muted mb-3">Current AQI - Your Location</h3>
+                                <div class="display-1 fw-bold mb-3" id="mainAQI">--</div>
+                                <div class="badge fs-5 px-4 py-2 mb-4" id="mainAQICategory">Loading...</div>
+                                <div class="progress mb-3" style="height: 12px;">
+                                    <div class="progress-bar" role="progressbar" id="aqiProgress"></div>
+                                </div>
+                                <p class="text-muted mb-2" id="aqiDescription">Fetching real-time data...</p>
+                                <p class="text-muted small" id="dominantPollutant"></p>
+                                <div class="mt-3">
+                                    <span class="citizen-feature-badge"><i class="fas fa-map-marker-alt me-1"></i> Delhi NCR</span>
+                                    <span class="citizen-feature-badge"><i class="fas fa-clock me-1"></i> Real-time</span>
+                                    <span class="citizen-feature-badge"><i class="fas fa-heartbeat me-1"></i> Health Index</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather & Quick Stats -->
+                <div class="row mb-4">
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-thermometer-half fa-2x text-info mb-3"></i>
+                                <h5>Temperature</h5>
+                                <div class="h4 fw-bold" id="temperature">--°C</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-wind fa-2x text-primary mb-3"></i>
+                                <h5>Wind Speed</h5>
+                                <div class="h4 fw-bold" id="windSpeed">-- m/s</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-tint fa-2x text-success mb-3"></i>
+                                <h5>Humidity</h5>
+                                <div class="h4 fw-bold" id="humidity">--%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-eye fa-2x text-warning mb-3"></i>
+                                <h5>Visibility</h5>
+                                <div class="h4 fw-bold" id="visibility">-- km</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-6 col-md-3 mb-3">
+                                        <button class="btn btn-primary w-100 py-3" onclick="showSection('complaints')">
+                                            <i class="fas fa-exclamation-triangle fa-2x mb-2"></i><br>
+                                            Report Pollution
+                                        </button>
+                                    </div>
+                                    <div class="col-6 col-md-3 mb-3">
+                                        <button class="btn btn-success w-100 py-3" onclick="showSection('health')">
+                                            <i class="fas fa-lungs fa-2x mb-2"></i><br>
+                                            Health Check
+                                        </button>
+                                    </div>
+                                    <div class="col-6 col-md-3 mb-3">
+                                        <button class="btn btn-info w-100 py-3" onclick="showSection('map')">
+                                            <i class="fas fa-map-marked-alt fa-2x mb-2"></i><br>
+                                            View AQI Map
+                                        </button>
+                                    </div>
+                                    <div class="col-6 col-md-3 mb-3">
+                                        <button class="btn btn-warning w-100 py-3" onclick="showSection('shelters')">
+                                            <i class="fas fa-shield-alt fa-2x mb-2"></i><br>
+                                            Find Shelters
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pollutant Breakdown & Health Recommendations -->
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-flask me-2"></i>Pollutant Levels</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="pollutantLevels">
+                                    <div class="text-center text-muted py-4">
+                                        <div class="spinner-border text-primary"></div>
+                                        <p class="mt-2">Loading pollutant data...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h4 class="mb-0"><i class="fas fa-heart me-2"></i>Health Recommendations</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="healthRecommendations" class="health-tip-card p-3 rounded">
+                                    <p>Loading health recommendations based on current AQI...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Complaints & AQI Forecast -->
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-history me-2"></i>Recent Complaints</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="recentComplaints">
+                                    <div class="text-center text-muted py-4">
+                                        <p>No recent complaints</p>
+                                        <button class="btn btn-sm btn-primary" onclick="showSection('complaints')">
+                                            Submit Your First Complaint
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-chart-line me-2"></i>24-Hour Forecast</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="forecastChart" height="120"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== COMPLAINT SUBMISSION SECTION ===== -->
+            <section class="content-section" id="complaints-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Submit Pollution Complaint
+                        </h2>
+                        <p class="text-muted">Report environmental violations with photo evidence. Help keep Delhi clean!</p>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Complaint Form</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="complaintForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="complaintType" class="form-label">Complaint Type *</label>
+                                    <select class="form-select" id="complaintType" required>
+                                        <option value="">Select type of pollution</option>
+                                        <option value="industrial_pollution">Industrial Pollution</option>
+                                        <option value="vehicle_emission">Vehicle Emission (Smoking Vehicles)</option>
+                                        <option value="construction_dust">Construction Dust</option>
+                                        <option value="waste_burning">Waste Burning</option>
+                                        <option value="garbage_dumping">Garbage Dumping</option>
+                                        <option value="water_pollution">Water Pollution</option>
+                                        <option value="noise_pollution">Noise Pollution</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="priority" class="form-label">Priority Level *</label>
+                                    <select class="form-select" id="priority" required>
+                                        <option value="">Select priority</option>
+                                        <option value="low">Low (Minor Issue)</option>
+                                        <option value="medium">Medium (Moderate Issue)</option>
+                                        <option value="high">High (Serious Issue)</option>
+                                        <option value="critical">Critical (Emergency)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="location" class="form-label">Location *</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="location" placeholder="Enter location or address" required>
+                                    <button class="btn btn-outline-primary" type="button" id="useCurrentLocation">
+                                        <i class="fas fa-location-arrow me-1"></i>Use My Location
+                                    </button>
+                                </div>
+                                <small class="text-muted">Please provide detailed location for faster resolution</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Detailed Description *</label>
+                                <textarea class="form-control" id="description" rows="4" 
+                                          placeholder="Describe the issue in detail. Include time, exact location, and any other relevant information." 
+                                          required></textarea>
+                                <small class="text-muted">Detailed descriptions help departments resolve issues faster</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Upload Evidence (Photos/Videos)</label>
+                                <div class="photo-preview" id="photoPreview"></div>
+                                <div class="mt-2">
+                                    <input type="file" class="form-control" id="photoUpload" accept="image/*,video/*" multiple>
+                                    <small class="text-muted">You can upload up to 5 photos/videos. Max size: 5MB each</small>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Note:</strong> Your complaint will be forwarded to the relevant department (DPCC, MCD, etc.) for action. 
+                                You can track the status in the "Complaint Tracking" section.
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="reset" class="btn btn-secondary me-md-2">Clear Form</button>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Complaint
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Complaint Guidelines -->
+                <div class="dashboard-card mt-4">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-info-circle me-2"></i>Complaint Guidelines</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>What to Report:</h5>
+                                <ul>
+                                    <li>Industries releasing black smoke or untreated waste</li>
+                                    <li>Vehicles emitting excessive smoke</li>
+                                    <li>Construction sites without dust control measures</li>
+                                    <li>Open burning of waste or leaves</li>
+                                    <li>Illegal garbage dumping</li>
+                                    <li>Polluted water bodies</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Tips for Effective Complaints:</h5>
+                                <ul>
+                                    <li>Take clear photos/videos with timestamp</li>
+                                    <li>Note vehicle numbers if applicable</li>
+                                    <li>Provide exact GPS location if possible</li>
+                                    <li>Report during the incident for faster action</li>
+                                    <li>Follow up on your complaint status</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="alert alert-success mt-3">
+                            <i class="fas fa-award me-2"></i>
+                            <strong>Earn Citizen Points:</strong> Each valid complaint earns you 10 points. Accumulate points for rewards!
+                            Current Points: <span id="citizenPoints" class="badge bg-success">0</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== COMPLAINT TRACKING SECTION ===== -->
+            <section class="content-section" id="tracking-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-tasks me-2"></i>Complaint Tracking
+                        </h2>
+                        <p class="text-muted">Monitor your complaint status and track resolution progress</p>
+                    </div>
+                </div>
+                
+                <!-- Complaint Stats -->
+                <div class="row mb-4">
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalComplaints">0</div>
+                            <div class="stat-label">Total Complaints</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number" id="pendingComplaints">0</div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number" id="inprogressComplaints">0</div>
+                            <div class="stat-label">In Progress</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number" id="resolvedComplaints">0</div>
+                            <div class="stat-label">Resolved</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">Your Complaints</h4>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-primary active" data-filter="all">All</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-filter="pending">Pending</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-filter="in-progress">In Progress</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-filter="resolved">Resolved</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="complaintsList">
+                            <div class="text-center text-muted py-4">
+                                <div class="spinner-border text-primary"></div>
+                                <p class="mt-2">Loading your complaints...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Complaint Status Guide -->
+                <div class="dashboard-card mt-4">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-question-circle me-2"></i>Understanding Complaint Status</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="status-badge status-pending me-2">Pending</span>
+                                    <span>Received, awaiting department assignment</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="status-badge status-in-progress me-2">In Progress</span>
+                                    <span>Assigned to department, investigation ongoing</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="status-badge status-under-investigation me-2">Under Investigation</span>
+                                    <span>Field inspection and evidence collection</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="status-badge status-resolved me-2">Resolved</span>
+                                    <span>Issue resolved, action taken</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning mt-3">
+                            <i class="fas fa-clock me-2"></i>
+                            <strong>Typical Resolution Times:</strong> Minor issues: 3-5 days | Major issues: 7-10 days | Critical emergencies: 24-48 hours
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== AQI MAP SECTION ===== -->
+            <section class="content-section" id="map-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-map-marked-alt me-2"></i>AQI Map
+                        </h2>
+                        <p class="text-muted">Real-time air quality visualization across Delhi-NCR</p>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-body">
+                        <div class="map-container" id="aqiMap"></div>
+                    </div>
+                </div>
+                
+                <!-- Map Controls -->
+                <div class="row mt-4">
+                    <div class="col-md-8">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h4 class="mb-0">AQI Legend</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-6 col-md-2 mb-2">
+                                        <div class="aqi-good p-2 rounded">Good (0-50)</div>
+                                    </div>
+                                    <div class="col-6 col-md-2 mb-2">
+                                        <div class="aqi-satisfactory p-2 rounded">Satisfactory (51-100)</div>
+                                    </div>
+                                    <div class="col-6 col-md-2 mb-2">
+                                        <div class="aqi-moderate p-2 rounded">Moderate (101-200)</div>
+                                    </div>
+                                    <div class="col-6 col-md-2 mb-2">
+                                        <div class="aqi-poor p-2 rounded">Poor (201-300)</div>
+                                    </div>
+                                    <div class="col-6 col-md-2 mb-2">
+                                        <div class="aqi-very-poor p-2 rounded">Very Poor (301-400)</div>
+                                    </div>
+                                    <div class="col-6 col-md-2 mb-2">
+                                        <div class="aqi-severe p-2 rounded">Severe (401-500)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Map Features</h4>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fas fa-map-marker-alt text-primary me-2"></i> Real-time AQI markers</li>
+                                    <li class="mb-2"><i class="fas fa-industry text-warning me-2"></i> Pollution sources</li>
+                                    <li class="mb-2"><i class="fas fa-hospital text-success me-2"></i> Health facilities</li>
+                                    <li class="mb-2"><i class="fas fa-shield-alt text-info me-2"></i> Clean air shelters</li>
+                                    <li class="mb-2"><i class="fas fa-car text-danger me-2"></i> Traffic hotspots</li>
+                                </ul>
+                                <button class="btn btn-primary w-100 mt-2" id="refreshMap">
+                                    <i class="fas fa-sync-alt me-2"></i>Refresh Map Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== NEARBY HOSPITALS SECTION ===== -->
+            <section class="content-section" id="hospitals-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-hospital me-2"></i>Nearby Hospitals
+                        </h2>
+                        <p class="text-muted">Find healthcare facilities for pollution-related health issues</p>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">Hospitals in Delhi-NCR</h4>
+                            <div class="input-group" style="width: 300px;">
+                                <input type="text" class="form-control" placeholder="Search hospitals..." id="hospitalSearch">
+                                <button class="btn btn-outline-primary" type="button">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="hospitalsList">
+                            <div class="text-center text-muted py-4">
+                                <div class="spinner-border text-primary"></div>
+                                <p class="mt-2">Loading hospitals data...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Emergency Information -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-danger text-white">
+                                <h4 class="mb-0"><i class="fas fa-phone-alt me-2"></i>Emergency Contacts</h4>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled">
+                                    <li class="mb-3">
+                                        <strong>National Emergency Number:</strong>
+                                        <div class="h4 text-danger">112</div>
+                                    </li>
+                                    <li class="mb-3">
+                                        <strong>Ambulance:</strong>
+                                        <div class="h5">102</div>
+                                    </li>
+                                    <li class="mb-3">
+                                        <strong>Delhi Pollution Control Committee:</strong>
+                                        <div class="h5">011-23860182</div>
+                                    </li>
+                                    <li class="mb-3">
+                                        <strong>Health Helpline:</strong>
+                                        <div class="h5">104</div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-warning text-dark">
+                                <h4 class="mb-0"><i class="fas fa-first-aid me-2"></i>Pollution Health Symptoms</h4>
+                            </div>
+                            <div class="card-body">
+                                <h5>Seek Medical Help If You Experience:</h5>
+                                <ul>
+                                    <li>Difficulty breathing or shortness of breath</li>
+                                    <li>Chest pain or tightness</li>
+                                    <li>Severe coughing or wheezing</li>
+                                    <li>Eye irritation or redness</li>
+                                    <li>Nausea or dizziness</li>
+                                    <li>Worsening of asthma or COPD symptoms</li>
+                                </ul>
+                                <div class="alert alert-info mt-3">
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    <strong>Tip:</strong> Keep your medications handy during high pollution days
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== AQI SHELTERS SECTION ===== -->
+            <section class="content-section" id="shelters-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-shield-alt me-2"></i>AQI Shelters
+                        </h2>
+                        <p class="text-muted">Find clean air shelters during high pollution episodes</p>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">Available Shelters</h4>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="showOnlyAvailable">
+                                <label class="form-check-label" for="showOnlyAvailable">Show only available shelters</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            AQI Shelters provide clean air environments during severe pollution episodes (AQI > 300). 
+                            They are equipped with air purifiers, medical assistance, and basic amenities.
+                        </div>
+                        
+                        <div id="sheltersList">
+                            <!-- Shelters will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Shelter Guidelines -->
+                <div class="row mt-4">
+                    <div class="col-md-8">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Shelter Guidelines</h4>
+                            </div>
+                            <div class="card-body">
+                                <h5>When to Use AQI Shelters:</h5>
+                                <ul>
+                                    <li>AQI exceeds 300 (Very Poor to Severe)</li>
+                                    <li>You experience breathing difficulties</li>
+                                    <li>You belong to sensitive groups (children, elderly, pregnant women)</li>
+                                    <li>You have respiratory conditions (asthma, COPD)</li>
+                                    <li>During pollution emergencies announced by government</li>
+                                </ul>
+                                
+                                <h5 class="mt-4">What to Bring:</h5>
+                                <ul>
+                                    <li>Identification proof (Aadhar Card, Voter ID)</li>
+                                    <li>Personal medications</li>
+                                    <li>Face masks (if available)</li>
+                                    <li>Water bottle</li>
+                                    <li>Essential personal items</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h4 class="mb-0"><i class="fas fa-heartbeat me-2"></i>Shelter Benefits</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="feature-list">
+                                    <div class="feature-item mb-3">
+                                        <i class="fas fa-wind text-primary me-2"></i>
+                                        <span>HEPA Air Purifiers</span>
+                                    </div>
+                                    <div class="feature-item mb-3">
+                                        <i class="fas fa-user-md text-success me-2"></i>
+                                        <span>Medical Staff Available</span>
+                                    </div>
+                                    <div class="feature-item mb-3">
+                                        <i class="fas fa-mask text-info me-2"></i>
+                                        <span>Free N95 Masks</span>
+                                    </div>
+                                    <div class="feature-item mb-3">
+                                        <i class="fas fa-tint text-primary me-2"></i>
+                                        <span>Drinking Water</span>
+                                    </div>
+                                    <div class="feature-item mb-3">
+                                        <i class="fas fa-chair text-warning me-2"></i>
+                                        <span>Seating Area</span>
+                                    </div>
+                                    <div class="feature-item mb-3">
+                                        <i class="fas fa-wifi text-info me-2"></i>
+                                        <span>Free Wi-Fi</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== HEALTH INSURANCE SECTION ===== -->
+            <section class="content-section" id="insurance-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-file-medical me-2"></i>Health Insurance
+                        </h2>
+                        <p class="text-muted">Special health insurance plans covering pollution-related illnesses</p>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Available Insurance Plans</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            These special health insurance plans provide coverage for pollution-related respiratory illnesses, 
+                            hospitalizations, and preventive care. Government subsidies available for eligible citizens.
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Insurance plans will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Insurance Benefits -->
+                <div class="row mt-4">
+                    <div class="col-md-8">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Insurance Benefits</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5>Coverage Includes:</h5>
+                                        <ul>
+                                            <li>Asthma and bronchitis treatment</li>
+                                            <li>Respiratory infection hospitalization</li>
+                                            <li>Pulmonologist consultations</li>
+                                            <li>Diagnostic tests (Spirometry, X-rays)</li>
+                                            <li>Medications for respiratory conditions</li>
+                                            <li>Emergency ambulance services</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5>Additional Benefits:</h5>
+                                        <ul>
+                                            <li>Air purifier rental subsidy</li>
+                                            <li>Preventive health checkups</li>
+                                            <li>Nutritionist consultation</li>
+                                            <li>Yoga and breathing exercises</li>
+                                            <li>Discounts on pollution masks</li>
+                                            <li>Telemedicine consultations</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-warning text-dark">
+                                <h4 class="mb-0"><i class="fas fa-percentage me-2"></i>Government Subsidies</h4>
+                            </div>
+                            <div class="card-body">
+                                <h5>Eligibility for Subsidy:</h5>
+                                <ul>
+                                    <li>Annual income below ₹3 lakhs</li>
+                                    <li>Senior citizens (60+ years)</li>
+                                    <li>Children below 12 years</li>
+                                    <li>People with existing respiratory conditions</li>
+                                    <li>Residents of high-pollution zones</li>
+                                </ul>
+                                <div class="alert alert-success mt-3">
+                                    <i class="fas fa-rupee-sign me-2"></i>
+                                    <strong>Subsidy:</strong> Up to 50% premium subsidy for eligible citizens
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== EVENTS SECTION ===== -->
+            <section class="content-section" id="events-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-calendar-alt me-2"></i>Environmental Events
+                        </h2>
+                        <p class="text-muted">Participate in environmental awareness events and activities</p>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">Upcoming Events</h4>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-primary active" data-filter="all">All Events</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-filter="workshop">Workshops</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-filter="volunteering">Volunteering</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-filter="seminar">Seminars</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="eventsList">
+                            <!-- Events will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Event Categories -->
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h4 class="mb-0"><i class="fas fa-users me-2"></i>Community Events</h4>
+                            </div>
+                            <div class="card-body">
+                                <h5>Tree Plantation Drives</h5>
+                                <p>Join community tree planting events to combat air pollution.</p>
+                                <h5 class="mt-3">Clean-up Campaigns</h5>
+                                <p>Participate in neighborhood clean-up drives.</p>
+                                <h5 class="mt-3">Awareness Walks</h5>
+                                <p>Join pollution awareness marches and walks.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h4 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Educational Events</h4>
+                            </div>
+                            <div class="card-body">
+                                <h5>Workshops</h5>
+                                <p>Learn about air pollution, health impacts, and prevention.</p>
+                                <h5 class="mt-3">Seminars</h5>
+                                <p>Attend expert talks on environmental conservation.</p>
+                                <h5 class="mt-3">Training Programs</h5>
+                                <p>Get trained as an environmental volunteer.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-info text-white">
+                                <h4 class="mb-0"><i class="fas fa-award me-2"></i>Rewards Program</h4>
+                            </div>
+                            <div class="card-body">
+                                <h5>Earn Points</h5>
+                                <p>Participate in events to earn citizen points.</p>
+                                <h5 class="mt-3">Redeem Rewards</h5>
+                                <p>Use points for pollution masks, plants, or discounts.</p>
+                                <h5 class="mt-3">Certificates</h5>
+                                <p>Get participation certificates for your profile.</p>
+                                <div class="alert alert-warning mt-3">
+                                    <i class="fas fa-star me-2"></i>
+                                    <strong>Current Points:</strong> <span id="eventPoints" class="badge bg-success">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== AR VISION SECTION ===== -->
+            <section class="content-section" id="ar-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-vr-cardboard me-2"></i>Smog-Scope AR View
+                        </h2>
+                        <p class="text-muted">Visualize pollution levels through augmented reality</p>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-body text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-vr-cardboard fa-5x text-primary mb-4"></i>
+                            <h3>Augmented Reality Pollution Visualization</h3>
+                            <p class="text-muted">Point your camera to visualize pollution levels in your surroundings</p>
+                        </div>
+                        
+                        <!-- AR Preview -->
+                        <div class="ar-overlay mb-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <h4><i class="fas fa-wind me-2"></i>Air Quality Overlay</h4>
+                                        <p>See real-time AQI values overlaid on buildings and landmarks</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h4><i class="fas fa-map-pin me-2"></i>Pollution Hotspots</h4>
+                                        <p>Identify areas with high pollution concentration</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <h4><i class="fas fa-car me-2"></i>Traffic Sources</h4>
+                                        <p>Visualize vehicle emission hotspots</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h4><i class="fas fa-industry me-2"></i>Industrial Sources</h4>
+                                        <p>Identify industrial pollution sources</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary btn-lg mb-3" id="startAR">
+                            <i class="fas fa-camera me-2"></i>Start AR Experience
+                        </button>
+                        
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <h5>How it works:</h5>
+                            <ol class="text-start">
+                                <li>Allow camera access when prompted</li>
+                                <li>Point your device at your surroundings</li>
+                                <li>See pollution data overlaid in real-time</li>
+                                <li>Tap on hotspots for detailed information</li>
+                                <li>Take screenshots to report issues</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AR Features -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-mobile-alt me-2"></i>Mobile Compatibility</h4>
+                            </div>
+                            <div class="card-body">
+                                <h5>Supported Devices:</h5>
+                                <ul>
+                                    <li>Android 8.0+ with ARCore support</li>
+                                    <li>iOS 11.0+ with ARKit support</li>
+                                    <li>Minimum 3GB RAM</li>
+                                    <li>Rear camera with autofocus</li>
+                                </ul>
+                                <h5 class="mt-3">Features:</h5>
+                                <ul>
+                                    <li>Real-time pollution visualization</li>
+                                    <li>Distance measurement to pollution sources</li>
+                                    <li>Health risk assessment</li>
+                                    <li>Navigation to clean air routes</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h4 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Safety Features</h4>
+                            </div>
+                            <div class="card-body">
+                                <h5>For Your Safety:</h5>
+                                <ul>
+                                    <li>Use in safe, well-lit areas</li>
+                                    <li>Be aware of your surroundings</li>
+                                    <li>Don't use while walking or driving</li>
+                                    <li>Keep device charged</li>
+                                </ul>
+                                <h5 class="mt-3">Privacy:</h5>
+                                <ul>
+                                    <li>Camera access only for AR visualization</li>
+                                    <li>No images stored on servers</li>
+                                    <li>Location data used only for AQI mapping</li>
+                                    <li>You can disable AR at any time</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== HEALTH & BREATHING SECTION ===== -->
+            <section class="content-section" id="health-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-lungs me-2"></i>Health & Breathing Exercises
+                        </h2>
+                        <p class="text-muted">Improve your lung health with guided exercises and health assessments</p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Health Assessment -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>Health Assessment</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="healthForm">
+                                    <div class="mb-3">
+                                        <label for="age" class="form-label">Age</label>
+                                        <input type="number" class="form-control" id="age" min="1" max="120" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Do you have any respiratory conditions?</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="respiratoryCondition" id="respiratoryNo" value="no" checked>
+                                            <label class="form-check-label" for="respiratoryNo">No</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="respiratoryCondition" id="respiratoryYes" value="yes">
+                                            <label class="form-check-label" for="respiratoryYes">Yes (Asthma, COPD, etc.)</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Do you smoke?</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="smoking" id="smokingNo" value="no" checked>
+                                            <label class="form-check-label" for="smokingNo">No</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="smoking" id="smokingYes" value="yes">
+                                            <label class="form-check-label" for="smokingYes">Yes</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="activityLevel" class="form-label">Activity Level</label>
+                                        <select class="form-select" id="activityLevel" required>
+                                            <option value="sedentary">Sedentary (Mostly indoors)</option>
+                                            <option value="light">Lightly Active (Walking, light exercise)</option>
+                                            <option value="moderate">Moderately Active (Regular exercise)</option>
+                                            <option value="very">Very Active (Heavy exercise daily)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary w-100">Get Health Recommendations</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Breathing Exercise -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0"><i class="fas fa-wind me-2"></i>Breathing Exercise</h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="breathing-circle breathing-animation" id="breathingCircle">
+                                    <i class="fas fa-lungs fa-3x"></i>
+                                    <div class="mt-2">Breathe In</div>
+                                </div>
+                                <div class="breathing-text mt-4">
+                                    <h5 id="breathingInstruction">Breathe in through your nose</h5>
+                                    <p class="text-muted" id="breathingTimer">Hold for 4 seconds</p>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="btn btn-success me-2" id="startBreathing">
+                                        <i class="fas fa-play me-2"></i>Start Exercise
+                                    </button>
+                                    <button class="btn btn-secondary" id="pauseBreathing" style="display: none;">
+                                        <i class="fas fa-pause me-2"></i>Pause
+                                    </button>
+                                </div>
+                                <div class="mt-3">
+                                    <small class="text-muted">Recommended: 5 minutes daily for better lung health</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Health Recommendations -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-file-medical-alt me-2"></i>Personalized Health Recommendations</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="personalHealthRecommendations">
+                            <p class="text-muted">Complete the health assessment to get personalized recommendations based on your profile and current AQI conditions.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Health Tips -->
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-warning text-dark">
+                                <h5 class="mb-0"><i class="fas fa-utensils me-2"></i>Diet Tips</h5>
+                            </div>
+                            <div class="card-body">
+                                <h6>Foods for Lung Health:</h6>
+                                <ul>
+                                    <li>Turmeric (anti-inflammatory)</li>
+                                    <li>Ginger (clears respiratory tract)</li>
+                                    <li>Honey (soothes throat)</li>
+                                    <li>Green leafy vegetables</li>
+                                    <li>Citrus fruits (Vitamin C)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-home me-2"></i>Indoor Tips</h5>
+                            </div>
+                            <div class="card-body">
+                                <h6>Improve Indoor Air:</h6>
+                                <ul>
+                                    <li>Use air purifiers</li>
+                                    <li>Keep windows closed during high AQI</li>
+                                    <li>Regular cleaning to reduce dust</li>
+                                    <li>Indoor plants (Areca palm, Spider plant)</li>
+                                    <li>Use exhaust fans in kitchen</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-walking me-2"></i>Outdoor Tips</h5>
+                            </div>
+                            <div class="card-body">
+                                <h6>When Going Out:</h6>
+                                <ul>
+                                    <li>Check AQI before going out</li>
+                                    <li>Wear N95 masks when AQI > 200</li>
+                                    <li>Avoid peak pollution hours (morning/evening)</li>
+                                    <li>Choose less polluted routes</li>
+                                    <li>Carry inhaler if asthmatic</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== POLICY RATING SECTION ===== -->
+            <section class="content-section" id="policy-rating-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-star me-2"></i>Policy Rating
+                        </h2>
+                        <p class="text-muted">Rate government policies and provide feedback for improvement</p>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Rate Current Policies</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="policiesList">
+                            <!-- Policies will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Policy Impact -->
+                <div class="row mt-4">
+                    <div class="col-md-8">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-chart-line me-2"></i>Policy Impact Analysis</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="policyImpactChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-info text-white">
+                                <h4 class="mb-0"><i class="fas fa-comments me-2"></i>Your Feedback Matters</h4>
+                            </div>
+                            <div class="card-body">
+                                <h5>Why Rate Policies?</h5>
+                                <ul>
+                                    <li>Help improve existing policies</li>
+                                    <li>Share your real-world experience</li>
+                                    <li>Influence future policy decisions</li>
+                                    <li>Contribute to cleaner air initiatives</li>
+                                    <li>Earn citizen participation points</li>
+                                </ul>
+                                <div class="alert alert-success mt-3">
+                                    <i class="fas fa-award me-2"></i>
+                                    <strong>Earn 5 points</strong> for each policy rating submitted
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== PROFILE SETTINGS SECTION ===== -->
+            <section class="content-section" id="profile-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-user-cog me-2"></i>Profile Settings
+                        </h2>
+                        <p class="text-muted">Manage your account, preferences, and personal information</p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Personal Information -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Personal Information</h4>
+                            </div>
+                            <div class="card-body">
+                                <form id="profileForm">
+                                    <div class="mb-3">
+                                        <label for="profileFullName" class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="profileFullName">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="profileEmail" class="form-label">Email Address</label>
+                                        <input type="email" class="form-control" id="profileEmail" readonly>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="profileMobile" class="form-label">Mobile Number</label>
+                                        <input type="tel" class="form-control" id="profileMobile">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="profileAddress" class="form-label">Address</label>
+                                        <textarea class="form-control" id="profileAddress" rows="3"></textarea>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="profileLocation" class="form-label">Preferred Location for AQI Alerts</label>
+                                        <input type="text" class="form-control" id="profileLocation" placeholder="Delhi, NCR">
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Account Settings -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Account Settings</h4>
+                            </div>
+                            <div class="card-body">
+                                <!-- Notification Preferences -->
+                                <div class="mb-4">
+                                    <h5>Notification Preferences</h5>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="notifyAQI" checked>
+                                        <label class="form-check-label" for="notifyAQI">AQI Alerts & Updates</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="notifyHealth" checked>
+                                        <label class="form-check-label" for="notifyHealth">Health Recommendations</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="notifyComplaint" checked>
+                                        <label class="form-check-label" for="notifyComplaint">Complaint Status Updates</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="notifyEvents" checked>
+                                        <label class="form-check-label" for="notifyEvents">Event Notifications</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="notifyEmergency" checked>
+                                        <label class="form-check-label" for="notifyEmergency">Emergency Alerts</label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Language Preferences -->
+                                <div class="mb-4">
+                                    <h5>Language Preferences</h5>
+                                    <select class="form-select" id="languagePreference">
+                                        <option value="en">English</option>
+                                        <option value="hi">Hindi</option>
+                                        <option value="bn">Bengali</option>
+                                        <option value="ta">Tamil</option>
+                                        <option value="te">Telugu</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Change Password -->
+                                <div class="mb-4">
+                                    <h5>Change Password</h5>
+                                    <form id="passwordForm">
+                                        <div class="mb-3">
+                                            <label for="currentPassword" class="form-label">Current Password</label>
+                                            <input type="password" class="form-control" id="currentPassword">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="newPassword" class="form-label">New Password</label>
+                                            <input type="password" class="form-control" id="newPassword">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                            <input type="password" class="form-control" id="confirmPassword">
+                                        </div>
+                                        <button type="submit" class="btn btn-warning">Change Password</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Account Statistics -->
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="dashboard-card text-center h-100">
+                            <div class="card-body">
+                                <h1 class="text-primary" id="totalPoints">0</h1>
+                                <p class="mb-0">Citizen Points</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="dashboard-card text-center h-100">
+                            <div class="card-body">
+                                <h1 class="text-success" id="totalComplaintsStat">0</h1>
+                                <p class="mb-0">Complaints Filed</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="dashboard-card text-center h-100">
+                            <div class="card-body">
+                                <h1 class="text-info" id="eventsAttended">0</h1>
+                                <p class="mb-0">Events Attended</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="dashboard-card text-center h-100">
+                            <div class="card-body">
+                                <h1 class="text-warning" id="policiesRated">0</h1>
+                                <p class="mb-0">Policies Rated</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Danger Zone -->
+                <div class="dashboard-card">
+                    <div class="card-header bg-danger text-white">
+                        <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Danger Zone</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-danger">
+                            <h5><i class="fas fa-exclamation-circle me-2"></i>Warning</h5>
+                            <p class="mb-2">The following actions are irreversible. Please proceed with caution.</p>
+                            <div class="mt-3">
+                                <button class="btn btn-outline-danger me-2" id="exportData">
+                                    <i class="fas fa-download me-2"></i>Export My Data
+                                </button>
+                                <button class="btn btn-outline-danger me-2" id="deleteComplaints">
+                                    <i class="fas fa-trash me-2"></i>Delete All Complaints
+                                </button>
+                                <button class="btn btn-danger" id="deleteAccount">
+                                    <i class="fas fa-trash-alt me-2"></i>Delete Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    Citizen Portal
+                    <span class="points-badge" id="headerPoints">0 pts</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="header-icon" id="notificationsBtn" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationCount">0</span>
+                </button>
+                <button class="header-icon" id="profileBtn" title="Profile">
+                    <i class="fas fa-user-circle"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Notification Panel -->
+        <div class="notification-panel" id="notificationPanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Notifications</h5>
+                <button class="btn btn-sm btn-outline-secondary" id="markAllRead">
+                    <i class="fas fa-check-double me-1"></i>Mark All Read
+                </button>
+            </div>
+            <div id="notificationPanelContent">
+                <div class="text-center text-muted py-4">
+                    <p>No new notifications</p>
                 </div>
             </div>
         </div>
         
-        <div class="row">
-            <!-- Current Conditions -->
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card dashboard-card">
-                    <div class="card-header">
-                        <i class="fas fa-info-circle me-2"></i>Current Conditions
-                    </div>
-                    <div class="card-body">
-                        <div class="text-center mb-4">
-                            <h2 id="local-aqi" class="display-4 fw-bold">-</h2>
-                            <span id="local-aqi-status" class="aqi-badge">Loading...</span>
-                        </div>
-                        <div class="row text-center">
-                            <div class="col-6">
-                                <p class="mb-1"><strong>PM2.5</strong></p>
-                                <h5 id="pm25-value">- μg/m³</h5>
-                            </div>
-                            <div class="col-6">
-                                <p class="mb-1"><strong>PM10</strong></p>
-                                <h5 id="pm10-value">- μg/m³</h5>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="row text-center">
-                            <div class="col-6">
-                                <p class="mb-1"><strong>Temperature</strong></p>
-                                <h5 id="temp-value">- °C</h5>
-                            </div>
-                            <div class="col-6">
-                                <p class="mb-1"><strong>Humidity</strong></p>
-                                <h5 id="humidity-value">- %</h5>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Profile Panel -->
+        <div class="profile-panel" id="profilePanel">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h5 id="profileUserName">Citizen User</h5>
+                <p class="text-muted" id="profileUserLocation">Delhi, India</p>
+                <div class="points-badge" id="profilePoints">0 pts</div>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item" onclick="showSection('profile')">
+                    <i class="fas fa-user-edit me-2"></i>Edit Profile
+                </li>
+                <li class="list-group-item" onclick="showSection('tracking')">
+                    <i class="fas fa-history me-2"></i>Complaint History
+                </li>
+                <li class="list-group-item" onclick="showSection('events')">
+                    <i class="fas fa-calendar-check me-2"></i>My Events
+                </li>
+                <li class="list-group-item" onclick="showSection('policy-rating')">
+                    <i class="fas fa-star me-2"></i>My Ratings
+                </li>
+                <li class="list-group-item text-danger" onclick="logout()">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </li>
+            </ul>
+        </div>
+
+        <!-- Chatbot Panel -->
+        <div class="chatbot-panel" id="chatbotPanel">
+            <div class="chatbot-header">
+                <h5 class="mb-0">AQI Assistant</h5>
+                <div>
+                    <select class="language-selector" id="chatbotLanguage">
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                    </select>
+                    <button class="btn-close btn-close-white" id="closeChatbot"></button>
                 </div>
             </div>
-            
-            <!-- Health Alerts -->
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card dashboard-card">
-                    <div class="card-header">
-                        <i class="fas fa-heartbeat me-2"></i>Health Alerts & Recommendations
-                    </div>
-                    <div class="card-body">
-                        <div id="health-alerts-container">
-                            <div class="health-alert alert-high">
-                                <h6><i class="fas fa-exclamation-triangle me-2"></i>High Pollution Alert</h6>
-                                <p class="mb-0">Limit outdoor activities. Sensitive groups should avoid prolonged exposure.</p>
-                            </div>
-                            <div class="health-alert alert-medium">
-                                <h6><i class="fas fa-mask me-2"></i>Mask Recommendation</h6>
-                                <p class="mb-0">Wear N95 mask if going outside for extended periods.</p>
-                            </div>
-                            <div class="health-alert alert-low">
-                                <h6><i class="fas fa-home me-2"></i>Indoor Air Quality</h6>
-                                <p class="mb-0">Keep windows closed. Use air purifiers if available.</p>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <h6>Personalized Tips</h6>
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-check text-success me-2"></i>Avoid morning outdoor exercises</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Keep hydration levels high</li>
-                                <li><i class="fas fa-check text-success me-2"></i>Plan travel during less polluted hours (afternoon)</li>
-                            </ul>
-                        </div>
-                    </div>
+            <div class="chatbot-body" id="chatbotMessages">
+                <div class="message bot-message">
+                    Hello! I'm your AQI assistant. How can I help you today?
                 </div>
             </div>
-            
-            <!-- AQI Forecast -->
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card dashboard-card">
-                    <div class="card-header">
-                        <i class="fas fa-chart-line me-2"></i>24-Hour AQI Forecast
-                    </div>
-                    <div class="card-body">
-                        <canvas id="forecastChart" height="200"></canvas>
-                        <div class="mt-3">
-                            <div class="forecast-item">
-                                <div class="row align-items-center">
-                                    <div class="col-4">
-                                        <strong>Now</strong>
-                                    </div>
-                                    <div class="col-4">
-                                        <span class="aqi-badge aqi-unhealthy">156</span>
-                                    </div>
-                                    <div class="col-4">
-                                        <i class="fas fa-wind"></i> 5 km/h
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="forecast-item">
-                                <div class="row align-items-center">
-                                    <div class="col-4">
-                                        <strong>3 PM</strong>
-                                    </div>
-                                    <div class="col-4">
-                                        <span class="aqi-badge aqi-unhealthy-sensitive">132</span>
-                                    </div>
-                                    <div class="col-4">
-                                        <i class="fas fa-wind"></i> 8 km/h
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="forecast-item">
-                                <div class="row align-items-center">
-                                    <div class="col-4">
-                                        <strong>6 PM</strong>
-                                    </div>
-                                    <div class="col-4">
-                                        <span class="aqi-badge aqi-unhealthy">148</span>
-                                    </div>
-                                    <div class="col-4">
-                                        <i class="fas fa-wind"></i> 6 km/h
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Pollution Sources -->
-            <div class="col-lg-6 mb-4">
-                <div class="card dashboard-card">
-                    <div class="card-header">
-                        <i class="fas fa-industry me-2"></i>Pollution Source Breakdown
-                    </div>
-                    <div class="card-body">
-                        <canvas id="sourceChart" height="250"></canvas>
-                        <div class="source-breakdown mt-3">
-                            <div class="source-item">
-                                <span class="source-name">Vehicular Emissions</span>
-                                <span class="source-percentage">28%</span>
-                            </div>
-                            <div class="source-item">
-                                <span class="source-name">Stubble Burning</span>
-                                <span class="source-percentage">25%</span>
-                            </div>
-                            <div class="source-item">
-                                <span class="source-name">Industrial Activity</span>
-                                <span class="source-percentage">22%</span>
-                            </div>
-                            <div class="source-item">
-                                <span class="source-name">Construction Dust</span>
-                                <span class="source-percentage">15%</span>
-                            </div>
-                            <div class="source-item">
-                                <span class="source-name">Other Sources</span>
-                                <span class="source-percentage">10%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Safe Route Suggestions -->
-            <div class="col-lg-6 mb-4">
-                <div class="card dashboard-card">
-                    <div class="card-header">
-                        <i class="fas fa-route me-2"></i>Safe Route Suggestions
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label for="routeStart" class="form-label">Starting Point</label>
-                            <input type="text" class="form-control" id="routeStart" placeholder="Enter starting location" value="Connaught Place">
-                        </div>
-                        <div class="mb-3">
-                            <label for="routeEnd" class="form-label">Destination</label>
-                            <input type="text" class="form-control" id="routeEnd" placeholder="Enter destination" value="India Gate">
-                        </div>
-                        <button class="btn btn-success w-100 mb-3">
-                            <i class="fas fa-search me-2"></i>Find Least Polluted Route
-                        </button>
-                        <div class="route-result">
-                            <h6>Recommended Route</h6>
-                            <p>Via Rajpath → AQI: 142 (Moderately polluted)</p>
-                            <div class="alert alert-success">
-                                <small><i class="fas fa-info-circle me-2"></i>This route has 15% lower pollution exposure than the fastest route.</small>
-                            </div>
-                            <h6>Alternative Routes</h6>
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-route me-2 text-muted"></i>Via Barakhamba Road → AQI: 168 (More polluted)</li>
-                                <li><i class="fas fa-route me-2 text-muted"></i>Via Mandi House → AQI: 152 (Moderately polluted)</li>
-                            </ul>
-                        </div>
-                    </div>
+            <div class="chatbot-footer">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="chatbotInput" placeholder="Type your message...">
+                    <button class="btn btn-primary" id="sendChatbotMessage">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5>Delhi-NCR Pollution Monitor</h5>
-                    <p>An AI-driven platform for pollution source identification, forecasting, and policy recommendations.</p>
-                    <div class="social-links">
-                        <a href="#" class="me-3"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="me-3"><i class="fab fa-facebook"></i></a>
-                        <a href="#" class="me-3"><i class="fab fa-linkedin"></i></a>
-                    </div>
-                </div>
-                <div class="col-md-2 mb-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="citizen-dashboard.html">Citizen Dashboard</a></li>
-                        <li><a href="policy-dashboard.html">Policy Dashboard</a></li>
-                        <li><a href="about.html">About</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3 mb-4">
-                    <h5>Data Sources</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="https://firms.modaps.eosdis.nasa.gov/" target="_blank">NASA FIRMS</a></li>
-                        <li><a href="https://www.airnow.gov/" target="_blank">AirNow</a></li>
-                        <li><a href="https://aqicn.org/api/" target="_blank">AQICN</a></li>
-                        <li><a href="https://openweathermap.org/api" target="_blank">OpenWeather</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3 mb-4">
-                    <h5>Contact</h5>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-envelope me-2"></i> info@pollutionmonitor.in</li>
-                        <li><i class="fas fa-phone me-2"></i> +91 98765 43210</li>
-                        <li><i class="fas fa-map-marker-alt me-2"></i> Delhi NCR, India</li>
-                    </ul>
-                </div>
-            </div>
-            <hr class="mt-0">
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="mb-0">&copy; 2025 Delhi-NCR Pollution Monitor. All rights reserved.</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="mb-0">Developed for Smart India Hackathon 2025</p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Leaflet JS for maps -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    
+    <!-- Custom JavaScript Files -->
+    <script src="assets/js/shared.js"></script>
+    <script src="assets/js/citizen.js"></script>
+    
     <script>
-        // API Keys
-        const NASA_API_KEY = '558a917aac444e7134423ea7e1c58791';
-        const OPENWEATHER_API_KEY = '5abdf3419f06bbac859d61943f4aff7c';
-        const AQICN_TOKEN = '8fd33513cb7c5bd7a8b957ffa407c0d1805abf08';
-        
-        // Initialize data refresh every 15 minutes
-        setInterval(loadCitizenDashboardData, 900000);
-        
-        // Load data when page loads
+        // Initialize citizen dashboard when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-            loadCitizenDashboardData();
-            initializeCharts();
+            // Initialize citizen dashboard
+            if (typeof initCitizenDashboard === 'function') {
+                initCitizenDashboard();
+            }
             
-            // Add event listener for location update
-            document.getElementById('updateLocation').addEventListener('click', function() {
-                loadCitizenDashboardData();
-            });
+            // Set user name from localStorage
+            const userData = localStorage.getItem('currentUser');
+            if (userData) {
+                const user = JSON.parse(userData);
+                document.getElementById('userName').textContent = user.name || 'Citizen';
+            }
+            
+            // Hide loader after 1.5 seconds
+            setTimeout(() => {
+                document.getElementById('globalLoader').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('globalLoader').style.display = 'none';
+                }, 500);
+            }, 1500);
         });
         
-        function loadCitizenDashboardData() {
-            const selectedLocation = document.getElementById('locationSelect').value;
-            fetchLocationAQIData(selectedLocation);
-            fetchWeatherData(selectedLocation);
+        // Logout function
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'auth.html';
         }
         
-        function fetchLocationAQIData(location) {
-            // Map location to AQICN city codes
-            const locationMap = {
-                'delhi': 'delhi',
-                'gurugram': 'gurgaon',
-                'noida': 'noida',
-                'faridabad': 'faridabad',
-                'ghaziabad': 'ghaziabad'
-            };
-            
-            const cityCode = locationMap[location] || 'delhi';
-            const url = `https://api.waqi.info/feed/${cityCode}/?token=${AQICN_TOKEN}`;
-            
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'ok') {
-                        const aqi = data.data.aqi;
-                        document.getElementById('current-location-aqi').textContent = aqi;
-                        document.getElementById('local-aqi').textContent = aqi;
-                        
-                        // Determine AQI status and color
-                        let status, badgeClass;
-                        if (aqi <= 50) {
-                            status = 'Good';
-                            badgeClass = 'aqi-good';
-                        } else if (aqi <= 100) {
-                            status = 'Moderate';
-                            badgeClass = 'aqi-moderate';
-                        } else if (aqi <= 150) {
-                            status = 'Unhealthy for Sensitive Groups';
-                            badgeClass = 'aqi-unhealthy-sensitive';
-                        } else if (aqi <= 200) {
-                            status = 'Unhealthy';
-                            badgeClass = 'aqi-unhealthy';
-                        } else if (aqi <= 300) {
-                            status = 'Very Unhealthy';
-                            badgeClass = 'aqi-very-unhealthy';
-                        } else {
-                            status = 'Hazardous';
-                            badgeClass = 'aqi-hazardous';
-                        }
-                        
-                        document.getElementById('current-location-status').textContent = status;
-                        document.getElementById('current-location-status').className = `aqi-badge ${badgeClass}`;
-                        document.getElementById('local-aqi-status').textContent = status;
-                        document.getElementById('local-aqi-status').className = `aqi-badge ${badgeClass}`;
-                        
-                        // Update PM values if available
-                        if (data.data.iaqi && data.data.iaqi.pm25) {
-                            document.getElementById('pm25-value').textContent = data.data.iaqi.pm25.v + ' μg/m³';
-                        }
-                        if (data.data.iaqi && data.data.iaqi.pm10) {
-                            document.getElementById('pm10-value').textContent = data.data.iaqi.pm10.v + ' μg/m³';
-                        }
-                    } else {
-                        console.error('Error fetching AQI data:', data);
-                        // Fallback data
-                        setFallbackData();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching AQI data:', error);
-                    setFallbackData();
-                });
-        }
-        
-        function fetchWeatherData(location) {
-            // Map location to OpenWeather city names
-            const locationMap = {
-                'delhi': 'Delhi',
-                'gurugram': 'Gurugram',
-                'noida': 'Noida',
-                'faridabad': 'Faridabad',
-                'ghaziabad': 'Ghaziabad'
-            };
-            
-            const cityName = locationMap[location] || 'Delhi';
-            const url = `https://api.openweathermap.org/data/2.5/weather?q=${cityName},IN&units=metric&appid=${OPENWEATHER_API_KEY}`;
-            
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.main) {
-                        document.getElementById('temp-value').textContent = Math.round(data.main.temp) + ' °C';
-                        document.getElementById('humidity-value').textContent = data.main.humidity + ' %';
-                    } else {
-                        // Fallback weather data
-                        document.getElementById('temp-value').textContent = '28 °C';
-                        document.getElementById('humidity-value').textContent = '65 %';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching weather data:', error);
-                    // Fallback weather data
-                    document.getElementById('temp-value').textContent = '28 °C';
-                    document.getElementById('humidity-value').textContent = '65 %';
-                });
-        }
-        
-        function setFallbackData() {
-            document.getElementById('current-location-aqi').textContent = '156';
-            document.getElementById('local-aqi').textContent = '156';
-            document.getElementById('current-location-status').textContent = 'Unhealthy';
-            document.getElementById('current-location-status').className = 'aqi-badge aqi-unhealthy';
-            document.getElementById('local-aqi-status').textContent = 'Unhealthy';
-            document.getElementById('local-aqi-status').className = 'aqi-badge aqi-unhealthy';
-            document.getElementById('pm25-value').textContent = '95 μg/m³';
-            document.getElementById('pm10-value').textContent = '180 μg/m³';
-        }
-        
-        function initializeCharts() {
-            // Forecast Chart
-            const forecastCtx = document.getElementById('forecastChart').getContext('2d');
-            const forecastChart = new Chart(forecastCtx, {
-                type: 'line',
-                data: {
-                    labels: ['6AM', '9AM', '12PM', '3PM', '6PM', '9PM', '12AM'],
-                    datasets: [{
-                        label: 'AQI Forecast',
-                        data: [168, 182, 175, 156, 148, 162, 158],
-                        borderColor: '#2E8B57',
-                        backgroundColor: 'rgba(46, 139, 87, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            title: {
-                                display: true,
-                                text: 'AQI'
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // Source Breakdown Chart
-            const sourceCtx = document.getElementById('sourceChart').getContext('2d');
-            const sourceChart = new Chart(sourceCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Vehicular Emissions', 'Stubble Burning', 'Industrial Activity', 'Construction Dust', 'Other Sources'],
-                    datasets: [{
-                        data: [28, 25, 22, 15, 10],
-                        backgroundColor: [
-                            '#FF6384',
-                            '#36A2EB',
-                            '#FFCE56',
-                            '#4BC0C0',
-                            '#9966FF'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
-        }
+        // Make logout available globally
+        window.logout = logout;
     </script>
 </body>
 </html>
