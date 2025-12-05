@@ -3,174 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Policy Dashboard - Delhi-NCR Pollution Monitor</title>
+    <title>Policy Dashboard | AQI NCR Delhi - Gov Edition</title>
+    
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+    
     <style>
-        /* Same CSS as index.html */
-        :root {
-            --primary-color: #2E8B57;
-            --secondary-color: #228B22;
-            --accent-color: #32CD32;
-            --dark-color: #1a3c27;
-            --light-color: #f5f9f7;
+        /* Policymaker specific styles */
+        .policy-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-left: 5px solid #0d6efd;
+            transition: all 0.3s ease;
         }
         
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-            color: #333;
-        }
-        
-        .navbar {
-            background-color: var(--dark-color);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .navbar-brand {
-            font-weight: 700;
-            color: white !important;
-        }
-        
-        .nav-link {
-            color: rgba(255,255,255,0.85) !important;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        
-        .nav-link:hover {
-            color: white !important;
-        }
-        
-        .section-title {
-            color: var(--dark-color);
-            margin-bottom: 30px;
-            position: relative;
-            padding-bottom: 15px;
-        }
-        
-        .section-title:after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 60px;
-            height: 3px;
-            background-color: var(--primary-color);
-        }
-        
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transition: transform 0.3s, box-shadow 0.3s;
-            margin-bottom: 20px;
-        }
-        
-        .card:hover {
+        .policy-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
         
-        .card-header {
-            background-color: var(--primary-color);
-            color: white;
-            border-radius: 10px 10px 0 0 !important;
-            font-weight: 600;
+        .policy-impact-score {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #28a745;
         }
         
-        .aqi-badge {
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 14px;
+        .policy-approval-rating {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffc107;
         }
         
-        .aqi-good { background-color: #4CAF50; color: white; }
-        .aqi-moderate { background-color: #FFC107; color: black; }
-        .aqi-unhealthy-sensitive { background-color: #FF9800; color: white; }
-        .aqi-unhealthy { background-color: #F44336; color: white; }
-        .aqi-very-unhealthy { background-color: #9C27B0; color: white; }
-        .aqi-hazardous { background-color: #795548; color: white; }
-        
-        .footer {
-            background-color: var(--dark-color);
-            color: white;
-            padding: 40px 0 20px;
+        .sentiment-chart-container {
+            position: relative;
+            height: 200px;
         }
         
-        .footer a {
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
-            transition: color 0.3s;
+        .policy-timeline {
+            border-left: 3px solid #0d6efd;
+            padding-left: 20px;
+            margin-left: 10px;
         }
         
-        .footer a:hover {
-            color: white;
+        .timeline-event {
+            position: relative;
+            margin-bottom: 25px;
         }
         
-        .policy-recommendation {
-            background-color: #f0f7ff;
-            border-left: 4px solid #2196F3;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 15px;
+        .timeline-event:before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #0d6efd;
         }
         
-        .intervention-impact {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            margin-bottom: 10px;
+        .feedback-quote {
+            font-style: italic;
+            border-left: 4px solid #e9ecef;
+            padding-left: 15px;
+            margin: 15px 0;
         }
         
-        .impact-positive { border-left: 4px solid #4CAF50; }
-        .impact-neutral { border-left: 4px solid #FFC107; }
-        .impact-negative { border-left: 4px solid #F44336; }
-        
-        .map-container {
-            height: 400px;
-            border-radius: 10px;
-            overflow: hidden;
+        .zone-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
         }
         
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .data-table th, .data-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .data-table th {
-            background-color: #f5f5f5;
-            font-weight: 600;
-        }
-        
-        @media (max-width: 768px) {
-            .section-title {
-                font-size: 1.5rem;
-            }
-            
-            .map-container {
-                height: 300px;
-            }
-        }
+        .zone-critical { background-color: #dc3545; }
+        .zone-high { background-color: #fd7e14; }
+        .zone-medium { background-color: #ffc107; }
+        .zone-low { background-color: #28a745; }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <!-- Loading Overlay -->
+    <div class="loader-overlay" id="globalLoader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Loading Policy Dashboard...</div>
+    </div>
+
+    <!-- Government Header -->
+    <div class="gov-header">
         <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <i class="fas fa-leaf me-2"></i>Delhi-NCR Pollution Monitor
+            <div class="left-text">
+                <strong>GOVT. OF NCT OF DELHI</strong> | Policy Analysis Portal
+            </div>
+            <div class="right-logos">
+                <span class="badge bg-info">Policy Analytics</span>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Flag_of_India.svg/640px-Flag_of_India.svg.png" 
+                     alt="Indian Flag" height="25" style="border-radius: 3px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-gov">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-gov" href="index.html">
+                <i class="fas fa-chart-line"></i> AQI NCR Delhi - Policy Portal
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -178,488 +125,2191 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="index.html">Home</a>
+                        <a class="nav-link" href="index.html">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="citizen-dashboard.html">Citizen Dashboard</a>
+                        <span class="nav-link text-info">
+                            <i class="fas fa-user-tie me-1"></i>
+                            <span id="userName">Policy Analyst</span>
+                        </span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="policy-dashboard.html">Policy Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="about.html">About</a>
+                        <button class="btn btn-danger btn-sm ms-2" onclick="logout()">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </button>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Policy Dashboard Content -->
-    <div class="container my-5">
-        <div class="row">
-            <div class="col-12">
-                <h1 class="section-title">Policy Dashboard</h1>
-                <p class="lead">Data-driven insights for evidence-based pollution control policies and interventions.</p>
+    <!-- Main Container -->
+    <div class="app-container" id="appContainer">
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
+        <!-- Floating Action Buttons -->
+        <div class="floating-buttons">
+            <div class="floating-btn chatbot" id="floatingChatbotBtn" title="AI Assistant">
+                <i class="fas fa-robot"></i>
+                <span class="floating-badge" id="chatbotBadge" style="display: none;">1</span>
+            </div>
+            <div class="floating-btn report" id="floatingReportBtn" title="Generate Report" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                <i class="fas fa-file-pdf"></i>
+            </div>
+            <div class="floating-btn emergency" id="floatingAlertBtn" title="Policy Alert" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);">
+                <i class="fas fa-bell"></i>
             </div>
         </div>
         
-        <!-- Key Metrics -->
-        <div class="row mb-4">
-            <div class="col-md-3 col-6 mb-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h3 class="text-primary">156</h3>
-                        <p class="text-muted mb-0">Current Delhi AQI</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6 mb-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h3 class="text-warning">18</h3>
-                        <p class="text-muted mb-0">Active Fire Incidents</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6 mb-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h3 class="text-success">-12%</h3>
-                        <p class="text-muted mb-0">AQI Change (vs Last Week)</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6 mb-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h3 class="text-info">42%</h3>
-                        <p class="text-muted mb-0">Stubble Burning Contribution</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <ul class="sidebar-menu" id="sidebarMenu">
+                <li><a href="#" class="active" data-section="dashboard"><i class="fas fa-chart-line"></i> Policy Dashboard</a></li>
+                <li><a href="#" data-section="policy-analysis"><i class="fas fa-analytics"></i> Policy Analysis</a></li>
+                <li><a href="#" data-section="feedback-analysis"><i class="fas fa-comments"></i> Citizen Feedback</a></li>
+                <li><a href="#" data-section="demographics"><i class="fas fa-users"></i> Demographics</a></li>
+                <li><a href="#" data-section="aqi-trends"><i class="fas fa-wind"></i> AQI Trends</a></li>
+                <li><a href="#" data-section="shelters"><i class="fas fa-shield-alt"></i> AQI Shelters</a></li>
+                <li><a href="#" data-section="events"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                <li><a href="#" data-section="reports"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="#" data-section="recommendations"><i class="fas fa-lightbulb"></i> Recommendations</a></li>
+                <li><a href="#" data-section="profile"><i class="fas fa-user-cog"></i> Profile Settings</a></li>
+                <li><a href="#" id="logout-sidebar"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </aside>
         
-        <div class="row">
-            <!-- Regional AQI Overview -->
-            <div class="col-lg-8 mb-4">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-map me-2"></i>Regional AQI Overview
+        <!-- Main Content Area -->
+        <div class="main-content" id="mainContent">
+            <!-- ===== POLICY DASHBOARD SECTION ===== -->
+            <section class="content-section active" id="dashboard-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-chart-line me-2"></i>Policy Dashboard
+                        </h2>
+                        <p class="text-muted">Real-time policy effectiveness monitoring and citizen feedback analysis</p>
+                        <div class="d-flex align-items-center">
+                            <span class="real-time-indicator">Live Data</span>
+                            <span class="ms-3 text-muted small">Last updated: <span id="lastUpdated">Loading...</span></span>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="map-container bg-light mb-4">
-                            <div class="d-flex justify-content-center align-items-center h-100">
-                                <div class="text-center">
-                                    <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
-                                    <h5>Delhi-NCR Pollution Heatmap</h5>
-                                    <p class="text-muted">Interactive map showing real-time AQI across regions</p>
+                </div>
+
+                <!-- Policy Alert -->
+                <div class="row mb-4" id="policyAlert" style="display: none;">
+                    <div class="col-12">
+                        <div class="alert alert-warning d-flex align-items-center custom-alert" role="alert">
+                            <i class="fas fa-exclamation-triangle me-3 fa-2x"></i>
+                            <div>
+                                <h5 class="alert-heading mb-1" id="alertTitle">Policy Alert</h5>
+                                <p class="mb-0" id="alertMessage">Negative citizen feedback detected for current policies.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Policy KPIs -->
+                <div class="row mb-4">
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <div class="policy-impact-score" id="policyEffectiveness">--%</div>
+                                <h5>Policy Effectiveness</h5>
+                                <p class="text-muted small mb-0">Based on AQI reduction</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <div class="policy-approval-rating" id="approvalRating">--%</div>
+                                <h5>Citizen Approval</h5>
+                                <p class="text-muted small mb-0">Based on feedback</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users fa-2x text-info mb-3"></i>
+                                <h5>Feedback Received</h5>
+                                <div class="h4 fw-bold" id="feedbackCount">--</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chart-bar fa-2x text-success mb-3"></i>
+                                <h5>Compliance Rate</h5>
+                                <div class="h4 fw-bold" id="complianceRate">--%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-6 col-md-3 mb-3">
+                                        <button class="btn btn-primary w-100 py-3" onclick="showSection('policy-analysis')">
+                                            <i class="fas fa-analytics fa-2x mb-2"></i><br>
+                                            Policy Analysis
+                                        </button>
+                                    </div>
+                                    <div class="col-6 col-md-3 mb-3">
+                                        <button class="btn btn-info w-100 py-3" onclick="showSection('feedback-analysis')">
+                                            <i class="fas fa-comments fa-2x mb-2"></i><br>
+                                            View Feedback
+                                        </button>
+                                    </div>
+                                    <div class="col-6 col-md-3 mb-3">
+                                        <button class="btn btn-success w-100 py-3" onclick="generateReport()">
+                                            <i class="fas fa-file-pdf fa-2x mb-2"></i><br>
+                                            Generate Report
+                                        </button>
+                                    </div>
+                                    <div class="col-6 col-md-3 mb-3">
+                                        <button class="btn btn-warning w-100 py-3" onclick="showSection('recommendations')">
+                                            <i class="fas fa-lightbulb fa-2x mb-2"></i><br>
+                                            Recommendations
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="table-responsive">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Region</th>
-                                        <th>Current AQI</th>
-                                        <th>Primary Pollutant</th>
-                                        <th>Trend</th>
-                                        <th>Source Contribution</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Central Delhi</td>
-                                        <td><span class="aqi-badge aqi-unhealthy">168</span></td>
-                                        <td>PM2.5</td>
-                                        <td><i class="fas fa-arrow-up text-danger"></i> Increasing</td>
-                                        <td>Vehicular (35%)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>West Delhi</td>
-                                        <td><span class="aqi-badge aqi-unhealthy">152</span></td>
-                                        <td>PM2.5</td>
-                                        <td><i class="fas fa-arrow-down text-success"></i> Decreasing</td>
-                                        <td>Industrial (42%)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>East Delhi</td>
-                                        <td><span class="aqi-badge aqi-unhealthy">174</span></td>
-                                        <td>PM10</td>
-                                        <td><i class="fas fa-arrow-up text-danger"></i> Increasing</td>
-                                        <td>Construction (38%)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Gurugram</td>
-                                        <td><span class="aqi-badge aqi-unhealthy">162</span></td>
-                                        <td>PM2.5</td>
-                                        <td><i class="fas fa-minus text-secondary"></i> Stable</td>
-                                        <td>Vehicular (45%)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Noida</td>
-                                        <td><span class="aqi-badge aqi-unhealthy">158</span></td>
-                                        <td>PM2.5</td>
-                                        <td><i class="fas fa-arrow-down text-success"></i> Decreasing</td>
-                                        <td>Mixed Sources</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    </div>
+                </div>
+
+                <!-- Policy Performance & Sentiment Analysis -->
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Policy Performance</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="policyPerformanceChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-info text-white">
+                                <h4 class="mb-0"><i class="fas fa-comment-dots me-2"></i>Sentiment Analysis</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="sentiment-chart-container">
+                                    <canvas id="sentimentChart"></canvas>
+                                </div>
+                                <div class="row text-center mt-3">
+                                    <div class="col-4">
+                                        <div class="h4 text-success" id="positiveSentiment">--%</div>
+                                        <small>Positive</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="h4 text-warning" id="neutralSentiment">--%</div>
+                                        <small>Neutral</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="h4 text-danger" id="negativeSentiment">--%</div>
+                                        <small>Negative</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- AI Recommendations -->
-            <div class="col-lg-4 mb-4">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-robot me-2"></i>AI Policy Recommendations
+
+                <!-- Recent Feedback & Policy Timeline -->
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-history me-2"></i>Recent Citizen Feedback</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="recentFeedback">
+                                    <div class="text-center text-muted py-4">
+                                        <div class="spinner-border text-primary"></div>
+                                        <p class="mt-2">Loading recent feedback...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="policy-recommendation">
-                            <h6><i class="fas fa-fire me-2"></i>Stubble Burning Mitigation</h6>
-                            <p class="mb-2">High contribution from agricultural fires in Punjab/Haryana. Recommend:</p>
-                            <ul class="mb-0">
-                                <li>Accelerate farmer subsidy programs for happy seeders</li>
-                                <li>Enhance monitoring and enforcement in hotspot districts</li>
-                            </ul>
-                            <div class="mt-2">
-                                <small class="text-muted">Expected impact: 15-20% AQI reduction</small>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-stream me-2"></i>Policy Timeline</h4>
                             </div>
-                        </div>
-                        
-                        <div class="policy-recommendation">
-                            <h6><i class="fas fa-car me-2"></i>Traffic Management</h6>
-                            <p class="mb-2">Vehicular emissions peak during 8-11 AM. Recommend:</p>
-                            <ul class="mb-0">
-                                <li>Extend odd-even scheme during high pollution days</li>
-                                <li>Promote staggered office hours for corporates</li>
-                            </ul>
-                            <div class="mt-2">
-                                <small class="text-muted">Expected impact: 8-12% AQI reduction</small>
+                            <div class="card-body">
+                                <div class="policy-timeline">
+                                    <div class="timeline-event">
+                                        <h6>Odd-Even Policy Implemented</h6>
+                                        <small class="text-muted">Nov 15, 2023</small>
+                                        <p class="mb-0 small">Phase 1 implementation started</p>
+                                    </div>
+                                    <div class="timeline-event">
+                                        <h6>GRAP Phase 2 Activated</h6>
+                                        <small class="text-muted">Nov 10, 2023</small>
+                                        <p class="mb-0 small">Emergency measures implemented</p>
+                                    </div>
+                                    <div class="timeline-event">
+                                        <h6>EV Subsidy Launched</h6>
+                                        <small class="text-muted">Oct 25, 2023</small>
+                                        <p class="mb-0 small">New electric vehicle incentives</p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <div class="policy-recommendation">
-                            <h6><i class="fas fa-industry me-2"></i>Industrial Controls</h6>
-                            <p class="mb-2">Industrial clusters in West Delhi show high emissions. Recommend:</p>
-                            <ul class="mb-0">
-                                <li>Enforce stricter emission standards for SMEs</li>
-                                <li>Accelerate transition to cleaner fuels</li>
-                            </ul>
-                            <div class="mt-2">
-                                <small class="text-muted">Expected impact: 10-15% AQI reduction</small>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-3">
-                            <button class="btn btn-success w-100">
-                                <i class="fas fa-download me-2"></i>Download Full Policy Report
-                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Source Attribution Analysis -->
-            <div class="col-lg-6 mb-4">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-chart-pie me-2"></i>Pollution Source Attribution
+            </section>
+
+            <!-- ===== POLICY ANALYSIS SECTION ===== -->
+            <section class="content-section" id="policy-analysis-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-analytics me-2"></i>Policy Analysis
+                        </h2>
+                        <p class="text-muted">Detailed analysis of policy impact and effectiveness metrics</p>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <canvas id="sourceAttributionChart" height="250"></canvas>
+                </div>
+                
+                <!-- Policy Filter -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="policySelect" class="form-label">Select Policy</label>
+                                        <select class="form-select" id="policySelect">
+                                            <option value="all">All Policies</option>
+                                            <option value="odd-even">Odd-Even Scheme</option>
+                                            <option value="grap">GRAP Implementation</option>
+                                            <option value="ev">EV Promotion</option>
+                                            <option value="construction">Construction Regulations</option>
+                                            <option value="industrial">Industrial Controls</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="timePeriod" class="form-label">Time Period</label>
+                                        <select class="form-select" id="timePeriod">
+                                            <option value="7d">Last 7 Days</option>
+                                            <option value="30d">Last 30 Days</option>
+                                            <option value="90d">Last 90 Days</option>
+                                            <option value="1y">Last 1 Year</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="zoneSelect" class="form-label">Zone/Area</label>
+                                        <select class="form-select" id="zoneSelect">
+                                            <option value="all">All Delhi-NCR</option>
+                                            <option value="central">Central Delhi</option>
+                                            <option value="south">South Delhi</option>
+                                            <option value="north">North Delhi</option>
+                                            <option value="east">East Delhi</option>
+                                            <option value="west">West Delhi</option>
+                                            <option value="ncr">NCR Regions</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" id="applyAnalysisFilter">
+                                    <i class="fas fa-filter me-2"></i>Apply Filters
+                                </button>
                             </div>
-                            <div class="col-md-6">
-                                <h6>Seasonal Variations</h6>
-                                <p>Source contributions change significantly across seasons:</p>
-                                <ul>
-                                    <li><strong>Winter (Oct-Feb):</strong> Stubble burning peaks (35-45%)</li>
-                                    <li><strong>Summer (Mar-Jun):</strong> Dust storms increase (25-30%)</li>
-                                    <li><strong>Monsoon (Jul-Sep):</strong> Natural cleansing reduces all sources</li>
-                                </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Policy Impact Analysis -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h4 class="mb-0">Policy Impact Analysis</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <canvas id="impactAnalysisChart" height="150"></canvas>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h5>Key Metrics</h5>
+                                        <div class="mb-3">
+                                            <small class="text-muted">AQI Reduction</small>
+                                            <div class="h4 text-success" id="aqiReduction">15.2%</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <small class="text-muted">Public Compliance</small>
+                                            <div class="h4 text-primary" id="publicCompliance">78.5%</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <small class="text-muted">Cost Effectiveness</small>
+                                            <div class="h4 text-warning" id="costEffectiveness">₹4.2 Cr</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <small class="text-muted">Long-term Impact</small>
+                                            <div class="h4 text-info" id="longtermImpact">High</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Policy Comparison -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h4 class="mb-0">Policy Comparison</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Policy</th>
+                                                <th>AQI Impact</th>
+                                                <th>Cost (Cr)</th>
+                                                <th>Public Support</th>
+                                                <th>Implementation</th>
+                                                <th>Effectiveness</th>
+                                                <th>Recommendation</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="policyComparisonTable">
+                                            <tr>
+                                                <td colspan="7" class="text-center text-muted py-4">
+                                                    <div class="spinner-border text-primary"></div>
+                                                    <p class="mt-2">Loading policy data...</p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Policy Zones Analysis -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Zone-wise Effectiveness</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="zoneEffectiveness">
+                                    <div class="zone-item mb-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span><span class="zone-indicator zone-critical"></span> Critical Zones</span>
+                                            <span class="badge bg-danger">Needs Attention</span>
+                                        </div>
+                                        <small class="text-muted">Central, East Delhi</small>
+                                    </div>
+                                    <div class="zone-item mb-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span><span class="zone-indicator zone-high"></span> High Priority</span>
+                                            <span class="badge bg-warning">Monitoring</span>
+                                        </div>
+                                        <small class="text-muted">North, West Delhi</small>
+                                    </div>
+                                    <div class="zone-item mb-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span><span class="zone-indicator zone-medium"></span> Medium Priority</span>
+                                            <span class="badge bg-info">Stable</span>
+                                        </div>
+                                        <small class="text-muted">South Delhi</small>
+                                    </div>
+                                    <div class="zone-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span><span class="zone-indicator zone-low"></span> Low Priority</span>
+                                            <span class="badge bg-success">Good</span>
+                                        </div>
+                                        <small class="text-muted">NCR Regions</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h4 class="mb-0"><i class="fas fa-chart-line me-2"></i>Trend Analysis</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="trendAnalysisChart" height="150"></canvas>
                                 <div class="mt-3">
-                                    <h6>Top Source Hotspots</h6>
-                                    <ol>
-                                        <li>Stubble burning: Punjab districts</li>
-                                        <li>Vehicular emissions: Central Delhi corridors</li>
-                                        <li>Industrial pollution: West Delhi clusters</li>
+                                    <h6>Key Insights:</h6>
+                                    <ul class="small">
+                                        <li>Odd-Even policy shows 15% AQI reduction during implementation</li>
+                                        <li>EV adoption increasing at 12% monthly rate</li>
+                                        <li>Construction regulations need stricter enforcement</li>
+                                        <li>Public awareness campaigns showing positive impact</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== CITIZEN FEEDBACK SECTION ===== -->
+            <section class="content-section" id="feedback-analysis-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-comments me-2"></i>Citizen Feedback Analysis
+                        </h2>
+                        <p class="text-muted">Analyze citizen sentiments, ratings, and suggestions for policy improvement</p>
+                    </div>
+                </div>
+                
+                <!-- Feedback Overview -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h4 class="mb-0">Feedback Overview</h4>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-primary active" data-filter="all">All</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" data-filter="positive">Positive</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" data-filter="negative">Negative</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" data-filter="suggestions">Suggestions</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <canvas id="feedbackTrendChart" height="100"></canvas>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="text-center">
+                                            <div class="display-4 fw-bold text-primary" id="totalFeedback">1,245</div>
+                                            <p class="text-muted">Total Feedback Received</p>
+                                            <div class="d-flex justify-content-around">
+                                                <div>
+                                                    <div class="h5 text-success">834</div>
+                                                    <small>Positive</small>
+                                                </div>
+                                                <div>
+                                                    <div class="h5 text-warning">286</div>
+                                                    <small>Neutral</small>
+                                                </div>
+                                                <div>
+                                                    <div class="h5 text-danger">125</div>
+                                                    <small>Negative</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Feedback Details -->
+                <div class="row">
+                    <div class="col-md-8 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Detailed Feedback</h4>
+                            </div>
+                            <div class="card-body">
+                                <div id="feedbackDetails">
+                                    <div class="feedback-item mb-4 p-3 border rounded">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <h6 class="mb-1">Excellent initiative for clean air!</h6>
+                                                <small class="text-muted">By: Rajesh Kumar | Location: South Delhi</small>
+                                            </div>
+                                            <span class="badge bg-success">Positive</span>
+                                        </div>
+                                        <p class="mb-2">The odd-even policy has significantly reduced traffic congestion in our area. Air quality feels much better during implementation days.</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">Policy: Odd-Even | Rating: 5/5</small>
+                                            <small class="text-muted">2 days ago</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="feedback-item mb-4 p-3 border rounded">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <h6 class="mb-1">Need better public transport</h6>
+                                                <small class="text-muted">By: Priya Sharma | Location: East Delhi</small>
+                                            </div>
+                                            <span class="badge bg-warning">Suggestion</span>
+                                        </div>
+                                        <p class="mb-2">While the policy is good, there should be more metro frequency and bus services on odd-even days to accommodate increased passengers.</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">Policy: Odd-Even | Rating: 3/5</small>
+                                            <small class="text-muted">1 week ago</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="feedback-item p-3 border rounded">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <h6 class="mb-1">Construction dust control ineffective</h6>
+                                                <small class="text-muted">By: Amit Verma | Location: Central Delhi</small>
+                                            </div>
+                                            <span class="badge bg-danger">Negative</span>
+                                        </div>
+                                        <p class="mb-2">Construction sites in our area continue to operate without proper dust control measures. The regulations exist but enforcement is weak.</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">Policy: Construction Regulations | Rating: 1/5</small>
+                                            <small class="text-muted">2 weeks ago</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-warning text-dark">
+                                <h4 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Feedback Distribution</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="feedbackDistributionChart" height="200"></canvas>
+                                <div class="mt-4">
+                                    <h6>Top Concerns:</h6>
+                                    <ol class="small">
+                                        <li>Need better public transport (45%)</li>
+                                        <li>Stricter enforcement required (32%)</li>
+                                        <li>Timing of policy implementation (18%)</li>
+                                        <li>Communication improvements (12%)</li>
+                                        <li>Exemption criteria (8%)</li>
                                     </ol>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Intervention Effectiveness -->
-            <div class="col-lg-6 mb-4">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-chart-bar me-2"></i>Intervention Effectiveness
+                
+                <!-- Word Cloud & Sentiment -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0"><i class="fas fa-cloud me-2"></i>Word Cloud Analysis</h4>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="word-cloud">
+                                    <span class="word-xl text-primary">clean</span>
+                                    <span class="word-lg text-success">air</span>
+                                    <span class="word-xl text-warning">traffic</span>
+                                    <span class="word-md text-danger">dust</span>
+                                    <span class="word-lg text-info">public</span>
+                                    <span class="word-md text-primary">transport</span>
+                                    <span class="word-xl text-success">health</span>
+                                    <span class="word-lg text-warning">enforcement</span>
+                                    <span class="word-md text-danger">congestion</span>
+                                    <span class="word-lg text-info">improvement</span>
+                                    <span class="word-xl text-primary">policy</span>
+                                    <span class="word-md text-success">implementation</span>
+                                </div>
+                                <p class="text-muted mt-3">Most frequently mentioned words in citizen feedback</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <canvas id="interventionChart" height="250"></canvas>
-                        <div class="mt-3">
-                            <h6>Recent Policy Impacts</h6>
-                            <div class="intervention-impact impact-positive">
-                                <div>
-                                    <h6 class="mb-1">Odd-Even Vehicle Scheme</h6>
-                                    <p class="mb-0">Implemented Nov 15-30, 2024</p>
-                                </div>
-                                <div class="text-end">
-                                    <span class="text-success">+12% effectiveness</span>
-                                    <p class="mb-0">AQI reduced by 18 points</p>
-                                </div>
+                    <div class="col-md-6">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-info text-white">
+                                <h4 class="mb-0"><i class="fas fa-user-friends me-2"></i>Demographic Insights</h4>
                             </div>
-                            <div class="intervention-impact impact-neutral">
-                                <div>
-                                    <h6 class="mb-1">Construction Ban</h6>
-                                    <p class="mb-0">Implemented during severe AQI days</p>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-6 mb-3">
+                                        <div class="h4">65%</div>
+                                        <small>Male Respondents</small>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <div class="h4">35%</div>
+                                        <small>Female Respondents</small>
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <div class="h5 text-primary">42%</div>
+                                        <small>18-35 Years</small>
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <div class="h5 text-success">38%</div>
+                                        <small>36-55 Years</small>
+                                    </div>
+                                    <div class="col-4 mb-3">
+                                        <div class="h5 text-warning">20%</div>
+                                        <small>55+ Years</small>
+                                    </div>
                                 </div>
-                                <div class="text-end">
-                                    <span class="text-warning">+5% effectiveness</span>
-                                    <p class="mb-0">Limited impact due to exemptions</p>
-                                </div>
-                            </div>
-                            <div class="intervention-impact impact-negative">
-                                <div>
-                                    <h6 class="mb-1">Firecracker Ban</h6>
-                                    <p class="mb-0">Diwali season enforcement</p>
-                                </div>
-                                <div class="text-end">
-                                    <span class="text-danger">-8% effectiveness</span>
-                                    <p class="mb-0">Poor compliance in residential areas</p>
+                                <div class="mt-3">
+                                    <h6>Key Demographic Insights:</h6>
+                                    <ul class="small">
+                                        <li>Younger respondents more likely to give positive feedback</li>
+                                        <li>Older citizens concerned about implementation timing</li>
+                                        <li>Working professionals emphasize need for better transport</li>
+                                        <li>Residents near construction sites report highest dissatisfaction</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Forecasting & Trends -->
-            <div class="col-12 mb-4">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-chart-line me-2"></i>AQI Forecasting & Trends
+            </section>
+
+            <!-- ===== DEMOGRAPHICS SECTION ===== -->
+            <section class="content-section" id="demographics-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-users me-2"></i>Demographics Analysis
+                        </h2>
+                        <p class="text-muted">Citizen demographic patterns and policy impact across different groups</p>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <canvas id="forecastTrendChart" height="300"></canvas>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Age Distribution</h4>
                             </div>
-                            <div class="col-md-4">
-                                <h6>Seasonal Forecast</h6>
-                                <p>Based on historical data and current conditions:</p>
-                                <ul>
-                                    <li><strong>Next 72 hours:</strong> AQI expected to remain 150-180 (Unhealthy)</li>
-                                    <li><strong>Next week:</strong> Possible improvement if wind patterns change</li>
-                                    <li><strong>Monthly outlook:</strong> Gradual improvement as winter progresses</li>
-                                </ul>
-                                <div class="mt-4">
-                                    <h6>Key Factors</h6>
-                                    <div class="mb-2">
-                                        <span class="badge bg-success me-2">Favorable</span>
-                                        <small>Increasing wind speed from NW</small>
-                                    </div>
-                                    <div class="mb-2">
-                                        <span class="badge bg-warning me-2">Neutral</span>
-                                        <small>Stable temperature patterns</small>
-                                    </div>
-                                    <div class="mb-2">
-                                        <span class="badge bg-danger me-2">Concerning</span>
-                                        <small>High fire count in neighboring states</small>
+                            <div class="card-body">
+                                <canvas id="ageDistributionChart" height="200"></canvas>
+                                <div class="mt-3">
+                                    <h6>Age Group Analysis:</h6>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <small class="text-muted">Youth (18-30)</small>
+                                            <div class="progress mb-2" style="height: 8px;">
+                                                <div class="progress-bar bg-primary" style="width: 35%"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Middle (31-55)</small>
+                                            <div class="progress mb-2" style="height: 8px;">
+                                                <div class="progress-bar bg-success" style="width: 45%"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Senior (55+)</small>
+                                            <div class="progress mb-2" style="height: 8px;">
+                                                <div class="progress-bar bg-warning" style="width: 20%"></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h4 class="mb-0">Income Level Analysis</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="incomeDistributionChart" height="200"></canvas>
+                                <div class="mt-3">
+                                    <h6>Policy Impact by Income:</h6>
+                                    <ul class="small">
+                                        <li><strong>High Income:</strong> 68% positive, prefer EV incentives</li>
+                                        <li><strong>Middle Income:</strong> 55% positive, concerned about costs</li>
+                                        <li><strong>Low Income:</strong> 42% positive, need better public transport</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Geographic Distribution -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h4 class="mb-0">Geographic Distribution</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="map-container" id="demographicsMap"></div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h6>Zone-wise Response Rate:</h6>
+                                        <div class="zone-stats">
+                                            <div class="zone-stat mb-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>Central Delhi</span>
+                                                    <span class="fw-bold">78%</span>
+                                                </div>
+                                                <div class="progress" style="height: 6px;">
+                                                    <div class="progress-bar bg-danger" style="width: 78%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="zone-stat mb-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>South Delhi</span>
+                                                    <span class="fw-bold">65%</span>
+                                                </div>
+                                                <div class="progress" style="height: 6px;">
+                                                    <div class="progress-bar bg-warning" style="width: 65%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="zone-stat mb-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>East Delhi</span>
+                                                    <span class="fw-bold">82%</span>
+                                                </div>
+                                                <div class="progress" style="height: 6px;">
+                                                    <div class="progress-bar bg-primary" style="width: 82%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="zone-stat mb-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>North Delhi</span>
+                                                    <span class="fw-bold">71%</span>
+                                                </div>
+                                                <div class="progress" style="height: 6px;">
+                                                    <div class="progress-bar bg-info" style="width: 71%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="zone-stat">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>West Delhi</span>
+                                                    <span class="fw-bold">69%</span>
+                                                </div>
+                                                <div class="progress" style="height: 6px;">
+                                                    <div class="progress-bar bg-success" style="width: 69%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Occupation Analysis -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Occupation Analysis</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="occupationChart" height="150"></canvas>
+                                <div class="mt-3">
+                                    <h6>Key Observations:</h6>
+                                    <ul class="small">
+                                        <li>Professionals most active in policy feedback (42%)</li>
+                                        <li>Students show highest approval for environmental policies</li>
+                                        <li>Business owners concerned about economic impact</li>
+                                        <li>Senior citizens emphasize health aspects</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h4 class="mb-0"><i class="fas fa-home me-2"></i>Residential Analysis</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-6 mb-3">
+                                        <div class="h3">62%</div>
+                                        <small>Apartment Residents</small>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <div class="h3">38%</div>
+                                        <small>Independent Houses</small>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <h6>Housing Type Impact:</h6>
+                                    <ul class="small">
+                                        <li>Apartment dwellers report better indoor air quality awareness</li>
+                                        <li>Independent house residents more affected by outdoor pollution</li>
+                                        <li>High-rise residents less impacted by street-level pollution</li>
+                                        <li>Ground floor residents report higher pollution exposure</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== AQI TRENDS SECTION ===== -->
+            <section class="content-section" id="aqi-trends-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-wind me-2"></i>AQI Trends Analysis
+                        </h2>
+                        <p class="text-muted">Historical AQI data, trend analysis, and policy impact correlation</p>
+                    </div>
+                </div>
+                
+                <!-- AQI Trend Charts -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h4 class="mb-0">AQI Trend Analysis (Last 12 Months)</h4>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-primary active" data-metric="aqi">AQI</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" data-metric="pm25">PM2.5</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" data-metric="pm10">PM10</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" data-metric="no2">NO2</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="aqiTrendChart" height="100"></canvas>
+                                <div class="row mt-3">
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <div class="h4 text-success">-18.5%</div>
+                                            <small>Yearly Improvement</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <div class="h4 text-primary">245</div>
+                                            <small>Current AQI</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <div class="h4 text-warning">42</div>
+                                            <small>Severe Days (2023)</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <div class="h4 text-info">28</div>
+                                            <small>Good Days (2023)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Policy Impact Correlation -->
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h4 class="mb-0">Policy Impact Correlation</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="policyImpactCorrelationChart" height="150"></canvas>
+                                <div class="mt-3">
+                                    <h6>Correlation Analysis:</h6>
+                                    <ul class="small">
+                                        <li><strong>Odd-Even:</strong> 0.72 correlation with AQI reduction</li>
+                                        <li><strong>GRAP:</strong> 0.65 correlation during severe episodes</li>
+                                        <li><strong>EV Promotion:</strong> 0.58 long-term correlation</li>
+                                        <li><strong>Construction Controls:</strong> 0.41 correlation with PM10 reduction</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Seasonal Analysis</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="seasonalAnalysisChart" height="150"></canvas>
+                                <div class="mt-3">
+                                    <h6>Seasonal Insights:</h6>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <small class="text-muted">Winter (Oct-Feb)</small>
+                                            <div class="h5 text-danger">AQI: 325</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Summer (Mar-Jun)</small>
+                                            <div class="h5 text-warning">AQI: 185</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Monsoon (Jul-Sep)</small>
+                                            <div class="h5 text-success">AQI: 95</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Post-Monsoon</small>
+                                            <div class="h5 text-primary">AQI: 145</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pollution Source Analysis -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h4 class="mb-0">Pollution Source Contribution</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <h5>Current Year (2023)</h5>
+                                        <canvas id="sourceChartCurrent" height="200"></canvas>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h5>Previous Year (2022)</h5>
+                                        <canvas id="sourceChartPrevious" height="200"></canvas>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h5>Source-wise Change</h5>
+                                        <div class="source-change">
+                                            <div class="source-item mb-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>Vehicle Emissions</span>
+                                                    <span class="text-success">-12%</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-success" style="width: 12%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="source-item mb-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>Industrial</span>
+                                                    <span class="text-primary">-8%</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-primary" style="width: 8%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="source-item mb-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>Construction</span>
+                                                    <span class="text-warning">-5%</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-warning" style="width: 5%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="source-item mb-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>Waste Burning</span>
+                                                    <span class="text-info">-15%</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-info" style="width: 15%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="source-item">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>Other Sources</span>
+                                                    <span class="text-secondary">-3%</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-secondary" style="width: 3%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== AQI SHELTERS SECTION (Similar to citizen) ===== -->
+            <section class="content-section" id="shelters-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-shield-alt me-2"></i>AQI Shelters Overview
+                        </h2>
+                        <p class="text-muted">Monitor shelter utilization, capacity, and effectiveness during pollution episodes</p>
+                    </div>
+                </div>
+                
+                <!-- Shelter Statistics -->
+                <div class="row mb-4">
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-home fa-2x text-primary mb-3"></i>
+                                <h5>Total Shelters</h5>
+                                <div class="h4 fw-bold" id="totalShelters">52</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users fa-2x text-success mb-3"></i>
+                                <h5>Total Capacity</h5>
+                                <div class="h4 fw-bold" id="totalCapacity">2,150</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-check fa-2x text-info mb-3"></i>
+                                <h5>Current Utilization</h5>
+                                <div class="h4 fw-bold" id="currentUtilization">68%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="dashboard-card h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-heartbeat fa-2x text-danger mb-3"></i>
+                                <h5>Health Cases</h5>
+                                <div class="h4 fw-bold" id="healthCases">124</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Shelter Utilization Analysis</h4>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="shelterUtilizationChart" height="100"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Shelter Management Table -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h4 class="mb-0">Shelter Status Report</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Shelter Name</th>
+                                                <th>Location</th>
+                                                <th>Capacity</th>
+                                                <th>Current Usage</th>
+                                                <th>Status</th>
+                                                <th>Resources</th>
+                                                <th>Last Updated</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Central Delhi Shelter</td>
+                                                <td>Connaught Place</td>
+                                                <td>50</td>
+                                                <td>42 (84%)</td>
+                                                <td><span class="badge bg-warning">High Usage</span></td>
+                                                <td>Purifiers: 8, Masks: 200</td>
+                                                <td>2 hours ago</td>
+                                            </tr>
+                                            <tr>
+                                                <td>South Delhi Shelter</td>
+                                                <td>Saket</td>
+                                                <td>35</td>
+                                                <td>28 (80%)</td>
+                                                <td><span class="badge bg-warning">High Usage</span></td>
+                                                <td>Purifiers: 6, Masks: 150</td>
+                                                <td>1 hour ago</td>
+                                            </tr>
+                                            <tr>
+                                                <td>East Delhi Shelter</td>
+                                                <td>Preet Vihar</td>
+                                                <td>40</td>
+                                                <td>40 (100%)</td>
+                                                <td><span class="badge bg-danger">Full</span></td>
+                                                <td>Purifiers: 8, Masks: 200</td>
+                                                <td>30 min ago</td>
+                                            </tr>
+                                            <tr>
+                                                <td>North Delhi Shelter</td>
+                                                <td>Rohini</td>
+                                                <td>45</td>
+                                                <td>32 (71%)</td>
+                                                <td><span class="badge bg-success">Available</span></td>
+                                                <td>Purifiers: 7, Masks: 180</td>
+                                                <td>3 hours ago</td>
+                                            </tr>
+                                            <tr>
+                                                <td>West Delhi Shelter</td>
+                                                <td>Dwarka</td>
+                                                <td>30</td>
+                                                <td>18 (60%)</td>
+                                                <td><span class="badge bg-success">Available</span></td>
+                                                <td>Purifiers: 5, Masks: 120</td>
+                                                <td>4 hours ago</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== EVENTS SECTION ===== -->
+            <section class="content-section" id="events-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-calendar-alt me-2"></i>Events & Outreach
+                        </h2>
+                        <p class="text-muted">Monitor environmental events, public outreach, and participation metrics</p>
+                    </div>
+                </div>
+                
+                <!-- Events Overview -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h4 class="mb-0">Events Overview</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <canvas id="eventsParticipationChart" height="100"></canvas>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="text-center">
+                                            <div class="display-4 fw-bold text-primary" id="totalEvents">156</div>
+                                            <p class="text-muted">Total Events (2023)</p>
+                                            <div class="d-flex justify-content-around">
+                                                <div>
+                                                    <div class="h5 text-success">12,450</div>
+                                                    <small>Total Participants</small>
+                                                </div>
+                                                <div>
+                                                    <div class="h5 text-warning">84%</div>
+                                                    <small>Satisfaction Rate</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Upcoming Events -->
+                <div class="row">
+                    <div class="col-md-8 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Upcoming Events</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="events-list">
+                                    <div class="event-item mb-3 p-3 border rounded">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1">Policy Feedback Session</h6>
+                                                <p class="mb-1 text-muted"><i class="fas fa-map-marker-alt me-1"></i> India Habitat Centre</p>
+                                                <p class="mb-2">Interactive session with citizens to gather feedback on current policies</p>
+                                                <div>
+                                                    <span class="badge bg-primary me-1">Government</span>
+                                                    <span class="badge bg-success me-1">Public</span>
+                                                    <span class="badge bg-info me-1">Feedback</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="event-date mb-2">
+                                                    <div class="fw-bold">25</div>
+                                                    <div>NOV</div>
+                                                </div>
+                                                <button class="btn btn-sm btn-outline-primary">View Details</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="event-item mb-3 p-3 border rounded">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1">EV Awareness Campaign</h6>
+                                                <p class="mb-1 text-muted"><i class="fas fa-map-marker-alt me-1"></i> Select Citywalk Mall</p>
+                                                <p class="mb-2">Promoting electric vehicle adoption with live demonstrations and subsidies</p>
+                                                <div>
+                                                    <span class="badge bg-warning me-1">Awareness</span>
+                                                    <span class="badge bg-success me-1">Technology</span>
+                                                    <span class="badge bg-info me-1">Subsidy</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="event-date mb-2">
+                                                    <div class="fw-bold">28</div>
+                                                    <div>NOV</div>
+                                                </div>
+                                                <button class="btn btn-sm btn-outline-primary">View Details</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="event-item p-3 border rounded">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1">Industrial Compliance Workshop</h6>
+                                                <p class="mb-1 text-muted"><i class="fas fa-map-marker-alt me-1"></i> PHD Chamber of Commerce</p>
+                                                <p class="mb-2">Workshop for industries on pollution control compliance and technologies</p>
+                                                <div>
+                                                    <span class="badge bg-danger me-1">Industry</span>
+                                                    <span class="badge bg-success me-1">Compliance</span>
+                                                    <span class="badge bg-info me-1">Workshop</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="event-date mb-2">
+                                                    <div class="fw-bold">02</div>
+                                                    <div>DEC</div>
+                                                </div>
+                                                <button class="btn btn-sm btn-outline-primary">View Details</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-info text-white">
+                                <h4 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Event Analytics</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="eventTypeChart" height="200"></canvas>
+                                <div class="mt-3">
+                                    <h6>Event Effectiveness:</h6>
+                                    <ul class="small">
+                                        <li><strong>Workshops:</strong> 78% satisfaction rate</li>
+                                        <li><strong>Awareness Camps:</strong> 82% reach rate</li>
+                                        <li><strong>Feedback Sessions:</strong> 65% participation</li>
+                                        <li><strong>Training Programs:</strong> 88% completion rate</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Event Impact Analysis -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h4 class="mb-0">Event Impact Analysis</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <h6>Knowledge Improvement</h6>
+                                        <div class="progress mb-3" style="height: 20px;">
+                                            <div class="progress-bar bg-success" style="width: 75%">75%</div>
+                                        </div>
+                                        <small class="text-muted">Average increase in pollution awareness post-event</small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h6>Behavior Change</h6>
+                                        <div class="progress mb-3" style="height: 20px;">
+                                            <div class="progress-bar bg-info" style="width: 62%">62%</div>
+                                        </div>
+                                        <small class="text-muted">Reported behavior changes among participants</small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h6>Policy Support</h6>
+                                        <div class="progress mb-3" style="height: 20px;">
+                                            <div class="progress-bar bg-primary" style="width: 81%">81%</div>
+                                        </div>
+                                        <small class="text-muted">Increase in policy approval after awareness events</small>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <h6>Recommendations:</h6>
+                                    <ul>
+                                        <li>Increase frequency of community-level awareness programs</li>
+                                        <li>Focus on digital outreach for younger demographics</li>
+                                        <li>Include practical demonstrations in all events</li>
+                                        <li>Measure long-term impact through follow-up surveys</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== REPORTS SECTION ===== -->
+            <section class="content-section" id="reports-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-file-alt me-2"></i>Reports & Analytics
+                        </h2>
+                        <p class="text-muted">Generate detailed reports, policy briefs, and analytical documents</p>
+                    </div>
+                </div>
+                
+                <!-- Report Generation -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h4 class="mb-0">Generate New Report</h4>
+                            </div>
+                            <div class="card-body">
+                                <form id="reportForm">
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="reportType" class="form-label">Report Type</label>
+                                            <select class="form-select" id="reportType" required>
+                                                <option value="">Select report type</option>
+                                                <option value="policy-analysis">Policy Analysis Report</option>
+                                                <option value="feedback-summary">Citizen Feedback Summary</option>
+                                                <option value="aqi-trends">AQI Trends Analysis</option>
+                                                <option value="shelter-utilization">Shelter Utilization Report</option>
+                                                <option value="event-impact">Event Impact Assessment</option>
+                                                <option value="monthly-summary">Monthly Summary Report</option>
+                                                <option value="annual-report">Annual Comprehensive Report</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="reportPeriod" class="form-label">Time Period</label>
+                                            <select class="form-select" id="reportPeriod" required>
+                                                <option value="">Select period</option>
+                                                <option value="last-week">Last Week</option>
+                                                <option value="last-month">Last Month</option>
+                                                <option value="last-quarter">Last Quarter</option>
+                                                <option value="last-year">Last Year</option>
+                                                <option value="custom">Custom Range</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="reportFormat" class="form-label">Format</label>
+                                            <select class="form-select" id="reportFormat" required>
+                                                <option value="pdf">PDF Document</option>
+                                                <option value="excel">Excel Spreadsheet</option>
+                                                <option value="ppt">PowerPoint Presentation</option>
+                                                <option value="word">Word Document</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3" id="customDateRange" style="display: none;">
+                                        <div class="col-md-6">
+                                            <label for="startDate" class="form-label">Start Date</label>
+                                            <input type="date" class="form-control" id="startDate">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="endDate" class="form-label">End Date</label>
+                                            <input type="date" class="form-control" id="endDate">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="reportSections" class="form-label">Include Sections</label>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="sectionExecutive" checked>
+                                                    <label class="form-check-label" for="sectionExecutive">Executive Summary</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="sectionMethodology" checked>
+                                                    <label class="form-check-label" for="sectionMethodology">Methodology</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="sectionFindings" checked>
+                                                    <label class="form-check-label" for="sectionFindings">Key Findings</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="sectionRecommendations" checked>
+                                                    <label class="form-check-label" for="sectionRecommendations">Recommendations</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button type="button" class="btn btn-secondary me-md-2" onclick="previewReport()">
+                                            <i class="fas fa-eye me-2"></i>Preview
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-file-download me-2"></i>Generate Report
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Reports -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h4 class="mb-0">Recent Reports</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Report Name</th>
+                                                <th>Type</th>
+                                                <th>Period</th>
+                                                <th>Generated</th>
+                                                <th>Size</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Policy Effectiveness Q3 2023</td>
+                                                <td><span class="badge bg-primary">Policy Analysis</span></td>
+                                                <td>Jul - Sep 2023</td>
+                                                <td>Oct 15, 2023</td>
+                                                <td>2.4 MB</td>
+                                                <td><span class="badge bg-success">Completed</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary me-1">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-info">
+                                                        <i class="fas fa-share"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Citizen Feedback Analysis Nov 2023</td>
+                                                <td><span class="badge bg-info">Feedback Summary</span></td>
+                                                <td>Nov 1-15, 2023</td>
+                                                <td>Nov 18, 2023</td>
+                                                <td>1.8 MB</td>
+                                                <td><span class="badge bg-success">Completed</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary me-1">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-info">
+                                                        <i class="fas fa-share"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>AQI Shelter Utilization Report</td>
+                                                <td><span class="badge bg-warning">Shelter Analysis</span></td>
+                                                <td>Oct 2023</td>
+                                                <td>Nov 5, 2023</td>
+                                                <td>3.2 MB</td>
+                                                <td><span class="badge bg-success">Completed</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary me-1">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-info">
+                                                        <i class="fas fa-share"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Event Impact Assessment Q3</td>
+                                                <td><span class="badge bg-success">Event Analysis</span></td>
+                                                <td>Jul - Sep 2023</td>
+                                                <td>Oct 25, 2023</td>
+                                                <td>2.1 MB</td>
+                                                <td><span class="badge bg-success">Completed</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary me-1">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-info">
+                                                        <i class="fas fa-share"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Annual Policy Review 2023</td>
+                                                <td><span class="badge bg-danger">Annual Report</span></td>
+                                                <td>Jan - Dec 2023</td>
+                                                <td>In Progress</td>
+                                                <td>--</td>
+                                                <td><span class="badge bg-warning">Processing</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-secondary" disabled>
+                                                        <i class="fas fa-clock"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== RECOMMENDATIONS SECTION ===== -->
+            <section class="content-section" id="recommendations-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-lightbulb me-2"></i>Policy Recommendations
+                        </h2>
+                        <p class="text-muted">AI-powered policy suggestions and improvement recommendations</p>
+                    </div>
+                </div>
+                
+                <!-- AI Recommendations -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-header bg-info text-white">
+                                <h4 class="mb-0"><i class="fas fa-robot me-2"></i>AI Policy Recommendations</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-primary">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    These recommendations are generated based on analysis of AQI data, citizen feedback, policy effectiveness metrics, and global best practices.
+                                </div>
+                                
+                                <div class="recommendations-list">
+                                    <div class="recommendation-item mb-4 p-3 border rounded">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h5 class="mb-0">Enhance Odd-Even Policy</h5>
+                                            <span class="badge bg-primary">Priority: High</span>
+                                        </div>
+                                        <p class="mb-2">Based on citizen feedback and traffic analysis, consider extending the odd-even scheme to commercial vehicles and implementing during morning peak hours only.</p>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <small class="text-muted">Expected Impact:</small>
+                                                <div class="h6 text-success">+15% AQI Reduction</div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <small class="text-muted">Implementation Cost:</small>
+                                                <div class="h6 text-warning">₹2.1 Crores</div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <small class="text-muted">Timeline:</small>
+                                                <div class="h6 text-info">3-4 Months</div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <button class="btn btn-sm btn-outline-primary me-2">
+                                                <i class="fas fa-thumbs-up me-1"></i>Approve
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary me-2">
+                                                <i class="fas fa-edit me-1"></i>Modify
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-times me-1"></i>Reject
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="recommendation-item mb-4 p-3 border rounded">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h5 class="mb-0">Improve Public Transport</h5>
+                                            <span class="badge bg-warning">Priority: Medium</span>
+                                        </div>
+                                        <p class="mb-2">Increase metro frequency by 20% during odd-even days and introduce special pollution control buses with free masks for passengers.</p>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <small class="text-muted">Expected Impact:</small>
+                                                <div class="h6 text-success">+8% Compliance</div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <small class="text-muted">Implementation Cost:</small>
+                                                <div class="h6 text-warning">₹5.8 Crores</div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <small class="text-muted">Timeline:</small>
+                                                <div class="h6 text-info">6-8 Months</div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <button class="btn btn-sm btn-outline-primary me-2">
+                                                <i class="fas fa-thumbs-up me-1"></i>Approve
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary me-2">
+                                                <i class="fas fa-edit me-1"></i>Modify
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-times me-1"></i>Reject
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="recommendation-item p-3 border rounded">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h5 class="mb-0">Stricter Construction Regulations</h5>
+                                            <span class="badge bg-danger">Priority: Critical</span>
+                                        </div>
+                                        <p class="mb-2">Implement real-time monitoring of construction sites with automatic fines for violations. Mandate anti-smog guns for all sites above 500 sq.m.</p>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <small class="text-muted">Expected Impact:</small>
+                                                <div class="h6 text-success">-12% PM10 Levels</div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <small class="text-muted">Implementation Cost:</small>
+                                                <div class="h6 text-warning">₹3.4 Crores</div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <small class="text-muted">Timeline:</small>
+                                                <div class="h6 text-info">2-3 Months</div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <button class="btn btn-sm btn-outline-primary me-2">
+                                                <i class="fas fa-thumbs-up me-1"></i>Approve
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary me-2">
+                                                <i class="fas fa-edit me-1"></i>Modify
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-times me-1"></i>Reject
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recommendation Analytics -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Recommendation Analytics</h4>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="recommendationAnalyticsChart" height="200"></canvas>
+                                <div class="mt-3">
+                                    <h6>Implementation Status:</h6>
+                                    <ul class="small">
+                                        <li><strong>Approved:</strong> 42 recommendations (68%)</li>
+                                        <li><strong>Implemented:</strong> 28 recommendations (45%)</li>
+                                        <li><strong>Pending:</strong> 14 recommendations (23%)</li>
+                                        <li><strong>Rejected:</strong> 6 recommendations (10%)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h4 class="mb-0"><i class="fas fa-chart-line me-2"></i>Impact Assessment</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="impact-metrics">
+                                    <div class="metric-item mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Implemented Recommendations</span>
+                                            <span class="fw-bold">28</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-success" style="width: 45%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="metric-item mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Average AQI Improvement</span>
+                                            <span class="fw-bold text-success">12.4%</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-info" style="width: 62%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="metric-item mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Citizen Satisfaction Increase</span>
+                                            <span class="fw-bold text-primary">18.2%</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-primary" style="width: 91%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="metric-item">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Cost-Benefit Ratio</span>
+                                            <span class="fw-bold text-warning">1:3.8</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-warning" style="width: 76%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <h6>Success Stories:</h6>
+                                    <ul class="small">
+                                        <li>EV subsidy program increased adoption by 42%</li>
+                                        <li>Construction regulations reduced PM10 by 15%</li>
+                                        <li>Public awareness campaign reached 2.1M citizens</li>
+                                        <li>Industrial compliance improved from 58% to 82%</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== PROFILE SETTINGS SECTION ===== -->
+            <section class="content-section" id="profile-section-content">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold text-primary">
+                            <i class="fas fa-user-cog me-2"></i>Profile Settings
+                        </h2>
+                        <p class="text-muted">Manage your policymaker account and preferences</p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Personal Information -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Personal Information</h4>
+                            </div>
+                            <div class="card-body">
+                                <form id="profileForm">
+                                    <div class="mb-3">
+                                        <label for="profileFullName" class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="profileFullName" value="Policy Analyst">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="profileEmail" class="form-label">Email Address</label>
+                                        <input type="email" class="form-control" id="profileEmail" value="policy@delhi.gov.in" readonly>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="profileDepartment" class="form-label">Department</label>
+                                        <input type="text" class="form-control" id="profileDepartment" value="Policy & Planning">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="profileDesignation" class="form-label">Designation</label>
+                                        <input type="text" class="form-control" id="profileDesignation" value="Senior Policy Analyst">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="profilePhone" class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" id="profilePhone" value="+91 11 2386 0182">
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Account Settings -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="dashboard-card h-100">
+                            <div class="card-header">
+                                <h4 class="mb-0">Account Settings</h4>
+                            </div>
+                            <div class="card-body">
+                                <!-- Notification Preferences -->
+                                <div class="mb-4">
+                                    <h5>Notification Preferences</h5>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="notifyPolicyAlerts" checked>
+                                        <label class="form-check-label" for="notifyPolicyAlerts">Policy Alerts</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="notifyFeedback" checked>
+                                        <label class="form-check-label" for="notifyFeedback">Citizen Feedback Updates</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="notifyAQITrends" checked>
+                                        <label class="form-check-label" for="notifyAQITrends">AQI Trend Alerts</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="notifyReports" checked>
+                                        <label class="form-check-label" for="notifyReports">Report Generation Updates</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="notifyEmergency" checked>
+                                        <label class="form-check-label" for="notifyEmergency">Emergency Policy Alerts</label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Report Preferences -->
+                                <div class="mb-4">
+                                    <h5>Report Preferences</h5>
+                                    <div class="mb-3">
+                                        <label for="defaultReportFormat" class="form-label">Default Report Format</label>
+                                        <select class="form-select" id="defaultReportFormat">
+                                            <option value="pdf" selected>PDF Document</option>
+                                            <option value="excel">Excel Spreadsheet</option>
+                                            <option value="ppt">PowerPoint Presentation</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="reportFrequency" class="form-label">Auto-report Frequency</label>
+                                        <select class="form-select" id="reportFrequency">
+                                            <option value="weekly">Weekly</option>
+                                            <option value="monthly" selected>Monthly</option>
+                                            <option value="quarterly">Quarterly</option>
+                                            <option value="none">None</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Change Password -->
+                                <div class="mb-4">
+                                    <h5>Change Password</h5>
+                                    <form id="passwordForm">
+                                        <div class="mb-3">
+                                            <label for="currentPassword" class="form-label">Current Password</label>
+                                            <input type="password" class="form-control" id="currentPassword">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="newPassword" class="form-label">New Password</label>
+                                            <input type="password" class="form-control" id="newPassword">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                            <input type="password" class="form-control" id="confirmPassword">
+                                        </div>
+                                        <button type="submit" class="btn btn-warning">Change Password</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Preferences -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h4 class="mb-0">Analytics Preferences</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <h6>Data Visualization</h6>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="vizCharts" checked>
+                                            <label class="form-check-label" for="vizCharts">Interactive Charts</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="vizMaps" checked>
+                                            <label class="form-check-label" for="vizMaps">Interactive Maps</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="vizTrends" checked>
+                                            <label class="form-check-label" for="vizTrends">Trend Lines</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <h6>Data Granularity</h6>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="granularity" id="granularityDaily" checked>
+                                            <label class="form-check-label" for="granularityDaily">Daily Data</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="granularity" id="granularityWeekly">
+                                            <label class="form-check-label" for="granularityWeekly">Weekly Aggregates</label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="granularity" id="granularityMonthly">
+                                            <label class="form-check-label" for="granularityMonthly">Monthly Aggregates</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <h6>Export Options</h6>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="exportRawData" checked>
+                                            <label class="form-check-label" for="exportRawData">Include Raw Data</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="exportAnalysis" checked>
+                                            <label class="form-check-label" for="exportAnalysis">Include Analysis</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" id="exportRecommendations" checked>
+                                            <label class="form-check-label" for="exportRecommendations">Include Recommendations</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Danger Zone -->
+                <div class="dashboard-card">
+                    <div class="card-header bg-danger text-white">
+                        <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Danger Zone</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-danger">
+                            <h5><i class="fas fa-exclamation-circle me-2"></i>Warning</h5>
+                            <p class="mb-2">These actions are irreversible. Please proceed with caution.</p>
+                            <div class="mt-3">
+                                <button class="btn btn-outline-danger me-2" id="exportAllData">
+                                    <i class="fas fa-download me-2"></i>Export All Data
+                                </button>
+                                <button class="btn btn-outline-danger me-2" id="clearAnalyticsCache">
+                                    <i class="fas fa-trash me-2"></i>Clear Analytics Cache
+                                </button>
+                                <button class="btn btn-danger" id="deleteAccount">
+                                    <i class="fas fa-trash-alt me-2"></i>Delete Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    Policy Portal
+                    <span class="points-badge" id="headerLevel">Level 3</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="header-icon" id="notificationsBtn" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationCount">3</span>
+                </button>
+                <button class="header-icon" id="profileBtn" title="Profile">
+                    <i class="fas fa-user-tie"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Notification Panel -->
+        <div class="notification-panel" id="notificationPanel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Policy Notifications</h5>
+                <button class="btn btn-sm btn-outline-secondary" id="markAllRead">
+                    <i class="fas fa-check-double me-1"></i>Mark All Read
+                </button>
+            </div>
+            <div id="notificationPanelContent">
+                <div class="notification-item border-bottom pb-2 mb-2">
+                    <h6 class="mb-1">New Citizen Feedback Available</h6>
+                    <p class="small mb-1">245 new feedback entries received in the last 24 hours</p>
+                    <small class="text-muted">2 hours ago</small>
+                </div>
+                <div class="notification-item border-bottom pb-2 mb-2">
+                    <h6 class="mb-1">Policy Alert: Odd-Even Effectiveness</h6>
+                    <p class="small mb-1">Odd-Even policy shows 15% AQI reduction this week</p>
+                    <small class="text-muted">1 day ago</small>
+                </div>
+                <div class="notification-item">
+                    <h6 class="mb-1">Report Generated Successfully</h6>
+                    <p class="small mb-1">Monthly policy analysis report for October is ready</p>
+                    <small class="text-muted">2 days ago</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Panel -->
+        <div class="profile-panel" id="profilePanel">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h5 id="profileUserName">Policy Analyst</h5>
+                <p class="text-muted" id="profileUserDepartment">Policy & Planning Dept.</p>
+                <div class="points-badge" id="profileLevel">Level 3</div>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item" onclick="showSection('profile')">
+                    <i class="fas fa-user-edit me-2"></i>Edit Profile
+                </li>
+                <li class="list-group-item" onclick="showSection('reports')">
+                    <i class="fas fa-file-alt me-2"></i>My Reports
+                </li>
+                <li class="list-group-item" onclick="showSection('recommendations')">
+                    <i class="fas fa-lightbulb me-2"></i>My Recommendations
+                </li>
+                <li class="list-group-item" onclick="generateReport()">
+                    <i class="fas fa-file-pdf me-2"></i>Generate Report
+                </li>
+                <li class="list-group-item text-danger" onclick="logout()">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </li>
+            </ul>
+        </div>
+
+        <!-- Chatbot Panel -->
+        <div class="chatbot-panel" id="chatbotPanel">
+            <div class="chatbot-header">
+                <h5 class="mb-0">Policy AI Assistant</h5>
+                <div>
+                    <select class="language-selector" id="chatbotLanguage">
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                    </select>
+                    <button class="btn-close btn-close-white" id="closeChatbot"></button>
+                </div>
+            </div>
+            <div class="chatbot-body" id="chatbotMessages">
+                <div class="message bot-message">
+                    Hello! I'm your Policy AI Assistant. I can help you analyze data, generate insights, and provide policy recommendations. How can I assist you today?
+                </div>
+            </div>
+            <div class="chatbot-footer">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="chatbotInput" placeholder="Ask about policy analysis, trends, or recommendations...">
+                    <button class="btn btn-primary" id="sendChatbotMessage">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5>Delhi-NCR Pollution Monitor</h5>
-                    <p>An AI-driven platform for pollution source identification, forecasting, and policy recommendations.</p>
-                    <div class="social-links">
-                        <a href="#" class="me-3"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="me-3"><i class="fab fa-facebook"></i></a>
-                        <a href="#" class="me-3"><i class="fab fa-linkedin"></i></a>
-                    </div>
-                </div>
-                <div class="col-md-2 mb-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="citizen-dashboard.html">Citizen Dashboard</a></li>
-                        <li><a href="policy-dashboard.html">Policy Dashboard</a></li>
-                        <li><a href="about.html">About</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3 mb-4">
-                    <h5>Data Sources</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="https://firms.modaps.eosdis.nasa.gov/" target="_blank">NASA FIRMS</a></li>
-                        <li><a href="https://www.airnow.gov/" target="_blank">AirNow</a></li>
-                        <li><a href="https://aqicn.org/api/" target="_blank">AQICN</a></li>
-                        <li><a href="https://openweathermap.org/api" target="_blank">OpenWeather</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3 mb-4">
-                    <h5>Contact</h5>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-envelope me-2"></i> info@pollutionmonitor.in</li>
-                        <li><i class="fas fa-phone me-2"></i> +91 98765 43210</li>
-                        <li><i class="fas fa-map-marker-alt me-2"></i> Delhi NCR, India</li>
-                    </ul>
-                </div>
-            </div>
-            <hr class="mt-0">
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="mb-0">&copy; 2025 Delhi-NCR Pollution Monitor. All rights reserved.</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="mb-0">Developed for Smart India Hackathon 2025</p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Leaflet JS for maps -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    
+    <!-- Custom JavaScript Files -->
+    <script src="assets/js/shared.js"></script>
+    <script src="assets/js/policymaker.js"></script>
+    
     <script>
-        // Initialize charts when page loads
+        // Initialize policymaker dashboard when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-            initializePolicyCharts();
+            // Initialize policymaker dashboard
+            if (typeof initPolicymakerDashboard === 'function') {
+                initPolicymakerDashboard();
+            }
             
-            // Set up auto-refresh every 15 minutes
-            setInterval(updatePolicyData, 900000);
+            // Set user name from localStorage
+            const userData = localStorage.getItem('currentUser');
+            if (userData) {
+                const user = JSON.parse(userData);
+                document.getElementById('userName').textContent = user.name || 'Policy Analyst';
+            }
+            
+            // Hide loader after 1.5 seconds
+            setTimeout(() => {
+                document.getElementById('globalLoader').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('globalLoader').style.display = 'none';
+                }, 500);
+            }, 1500);
         });
         
-        function initializePolicyCharts() {
-            // Source Attribution Chart
-            const sourceCtx = document.getElementById('sourceAttributionChart').getContext('2d');
-            const sourceChart = new Chart(sourceCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Stubble Burning', 'Vehicular Emissions', 'Industrial', 'Construction', 'Other'],
-                    datasets: [{
-                        data: [42, 28, 15, 10, 5],
-                        backgroundColor: [
-                            '#FF6384',
-                            '#36A2EB',
-                            '#FFCE56',
-                            '#4BC0C0',
-                            '#9966FF'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
-            
-            // Intervention Effectiveness Chart
-            const interventionCtx = document.getElementById('interventionChart').getContext('2d');
-            const interventionChart = new Chart(interventionCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Odd-Even', 'Construction Ban', 'Firecracker Ban', 'Industry Controls', 'Public Transport'],
-                    datasets: [{
-                        label: 'Effectiveness (%)',
-                        data: [75, 40, 20, 65, 55],
-                        backgroundColor: [
-                            'rgba(46, 139, 87, 0.7)',
-                            'rgba(255, 193, 7, 0.7)',
-                            'rgba(244, 67, 54, 0.7)',
-                            'rgba(46, 139, 87, 0.7)',
-                            'rgba(46, 139, 87, 0.7)'
-                        ],
-                        borderColor: [
-                            '#2E8B57',
-                            '#FFC107',
-                            '#F44336',
-                            '#2E8B57',
-                            '#2E8B57'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            title: {
-                                display: true,
-                                text: 'Effectiveness (%)'
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // Forecast Trend Chart
-            const forecastCtx = document.getElementById('forecastTrendChart').getContext('2d');
-            const forecastChart = new Chart(forecastCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Oct 1', 'Oct 15', 'Nov 1', 'Nov 15', 'Dec 1', 'Dec 15', 'Jan 1', 'Jan 15'],
-                    datasets: [{
-                        label: 'Historical AQI (2024)',
-                        data: [120, 135, 165, 185, 195, 210, 205, 190],
-                        borderColor: 'rgba(151, 151, 151, 0.7)',
-                        borderDash: [5, 5],
-                        fill: false,
-                        tension: 0.3
-                    }, {
-                        label: 'Current AQI (2025)',
-                        data: [115, 130, 155, 175, 185, 200, 195, 180],
-                        borderColor: '#2E8B57',
-                        backgroundColor: 'rgba(46, 139, 87, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    }, {
-                        label: 'Forecast (Next 30 days)',
-                        data: [180, null, null, null, null, null, null, 150],
-                        borderColor: '#2196F3',
-                        borderDash: [5, 5],
-                        pointBackgroundColor: '#2196F3',
-                        fill: false,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'AQI'
-                            }
-                        }
-                    }
-                }
-            });
+        // Logout function
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'auth.html';
         }
         
-        function updatePolicyData() {
-            // In a real implementation, this would fetch updated data from APIs
-            console.log('Policy dashboard data refreshed');
+        // Make functions available globally
+        window.logout = logout;
+        window.showSection = function(section) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            
+            // Show selected section
+            const sectionElement = document.getElementById(`${section}-section-content`);
+            if (sectionElement) {
+                sectionElement.classList.add('active');
+            }
+            
+            // Update sidebar active state
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-section') === section) {
+                    link.classList.add('active');
+                }
+            });
+        };
+        
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (sidebar.style.left === '0px') {
+                sidebar.style.left = '-250px';
+                overlay.style.display = 'none';
+            } else {
+                sidebar.style.left = '0';
+                overlay.style.display = 'block';
+            }
+        }
+        
+        // Generate report function
+        function generateReport() {
+            alert('Report generation feature would open here. In a real application, this would generate a PDF/Excel report based on current data.');
         }
     </script>
 </body>
