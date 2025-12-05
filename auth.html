@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Portal | AQI NCR Delhi - Gov Edition</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --gov-blue: #003366;
+            --gov-gold: #FFD700;
+            --gov-red: #FF4500;
+            --gov-green: #228B22;
+            --gov-light-blue: #1E90FF;
+            --gov-dark: #0A2647;
+            --gov-white: #FFFFFF;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #f0f8ff 0%, #e6f7ff 100%);
+            min-height: 100vh;
+        }
+        
+        /* Government Header */
+        .gov-header {
+            background: linear-gradient(90deg, var(--gov-blue) 0%, #004080 100%);
+            color: white;
+            padding: 8px 0;
+            font-size: 0.9rem;
+            border-bottom: 4px solid var(--gov-gold);
+        }
+        
+        .gov-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .gov-header .right-logos {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        /* Navigation */
+        .navbar-gov {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-bottom: 2px solid var(--gov-gold);
+        }
+        
+        .navbar-brand-gov {
+            font-weight: 700;
+            color: var(--gov-blue) !important;
+            font-size: 1.5rem;
+        }
+        
+        /* Auth Container */
+        .auth-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-hero {
+            background: linear-gradient(rgba(0, 51, 102, 0.9), rgba(0, 64, 128, 0.9)), 
+                        url('https://images.unsplash.com/photo-1587474260584-136574528ed5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .auth-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .auth-hero p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 30px;
+        }
+        
+        .feature-list li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .feature-list i {
+            color: var(--gov-gold);
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+        
+        /* Auth Form Area */
+        .auth-form-area {
+            padding: 60px 40px;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 30px;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        
+        .auth-tab:hover {
+            background: #e9ecef;
+        }
+        
+        .auth-tab.active {
+            background: var(--gov-blue);
+            color: white;
+            position: relative;
+        }
+        
+        .auth-tab.active:after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--gov-gold);
+        }
+        
+        .auth-panel {
+            display: none;
+        }
+        
+        .auth-panel.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--gov-blue);
+            margin-bottom: 8px;
+        }
+        
+        .form-control {
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--gov-blue);
+            box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+        }
+        
+        .password-container {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .btn-auth {
+            background: var(--gov-blue);
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        .btn-auth:hover {
+            background: #004080;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 51, 102, 0.2);
+        }
+        
+        .btn-auth:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .alert-message {
+            display: none;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        /* OTP Modal */
+        .otp-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .otp-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .otp-inputs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        
+        .otp-input {
+            width: 50px;
+            height: 60px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .otp-input:focus {
+            border-color: var(--gov-blue);
+            box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+        }
+        
+        /* Demo Accounts */
+        .demo-accounts {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            border-left: 4px solid var(--gov-gold);
+        }
+        
+        .demo-accounts h5 {
+            color: var(--gov-blue);
+            margin-bottom: 15px;
+        }
+        
+        .demo-role {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .demo-credentials {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        /* Footer */
+        .auth-footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .auth-footer a {
+            color: var(--gov-blue);
+            text-decoration: none;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--gov-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .auth-container {
+                flex-direction: column;
+            }
+            
+            .auth-hero, .auth-form-area {
+                padding: 40px 20px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .auth-tabs {
+                flex-direction: column;
+            }
+            
+            .auth-tab {
+                border-radius: 8px;
+                margin-bottom: 5px;
+            }
+            
+            .auth-tab.active:after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Government Header -->
+    <div class="gov-header">
+        <div class="container">
+            <div class="left-text">
+                <strong>GOVT. OF NCT OF DELHI</strong> | Official Authentication Portal
+            </div>
+            <div class="right-logos">
+                <span>Azadi Ka Amrit Mahotsav</span>
+                <span class="badge bg-danger">G20 Bharat 2025 INDIA</span>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Flag_of_India.svg/640px-Flag_of_India.svg.png" 
+                     alt="Indian Flag" height="25" style="border-radius: 3px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-gov">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-gov" href="index.html">
+                <i class="fas fa-wind"></i>AQI NCR Delhi - Gov Edition
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Auth Container -->
+    <div class="container">
+        <div class="auth-container">
+            <div class="row g-0">
+                <!-- Left Side - Hero Section -->
+                <div class="col-lg-5">
+                    <div class="auth-hero">
+                        <h1>Secure Authentication Portal</h1>
+                        <p>Access the official AQI NCR Delhi Government Portal using your registered credentials.</p>
+                        
+                        <ul class="feature-list">
+                            <li>
+                                <i class="fas fa-shield-alt"></i>
+                                <span>256-bit SSL Encryption</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-user-check"></i>
+                                <span>Role-based Access Control</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-envelope"></i>
+                                <span>OTP-based Password Recovery</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-clock"></i>
+                                <span>24/7 Secure Access</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-history"></i>
+                                <span>Activity Logging & Monitoring</span>
+                            </li>
+                        </ul>
+                        
+                        <div class="mt-4">
+                            <div class="alert alert-warning mb-0" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Security Notice:</strong> This portal uses government-grade security. Never share your credentials.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Side - Forms -->
+                <div class="col-lg-7">
+                    <div class="auth-form-area">
+                        <!-- Alert Messages -->
+                        <div id="alertMessage" class="alert-message"></div>
+                        
+                        <!-- Tabs -->
+                        <div class="auth-tabs">
+                            <button class="auth-tab active" onclick="switchTab('login')">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login
+                            </button>
+                            <button class="auth-tab" onclick="switchTab('register')">
+                                <i class="fas fa-user-plus me-2"></i>Register
+                            </button>
+                            <button class="auth-tab" onclick="switchTab('forgot')">
+                                <i class="fas fa-key me-2"></i>Forgot Password
+                            </button>
+                        </div>
+                        
+                        <!-- Login Panel -->
+                        <div id="loginPanel" class="auth-panel active">
+                            <h3 class="mb-4" style="color: var(--gov-blue);">Login to Your Account</h3>
+                            
+                            <form id="loginForm">
+                                <div class="mb-3">
+                                    <label for="loginRole" class="form-label">Select Your Role</label>
+                                    <select class="form-control" id="loginRole" required>
+                                        <option value="">Select Role</option>
+                                        <option value="citizen">Citizen (Jan Bhagidari)</option>
+                                        <option value="department">Government Department</option>
+                                        <option value="policymaker">Policymaker</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="loginEmail" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="loginEmail" 
+                                           placeholder="Enter your registered email" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="loginPassword" class="form-label">Password</label>
+                                    <div class="password-container">
+                                        <input type="password" class="form-control" id="loginPassword" 
+                                               placeholder="Enter your password" required>
+                                        <span class="password-toggle" onclick="togglePassword('loginPassword')">
+                                            <i class="fas fa-eye"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="rememberMe">
+                                    <label class="form-check-label" for="rememberMe">Remember me</label>
+                                    <a href="javascript:void(0)" onclick="switchTab('forgot')" 
+                                       class="float-end text-decoration-none" style="color: var(--gov-blue);">
+                                        Forgot Password?
+                                    </a>
+                                </div>
+                                
+                                <button type="submit" class="btn-auth" id="loginBtn">
+                                    <span class="spinner" style="display: none;"></span>
+                                    Login to Portal
+                                </button>
+                            </form>
+                            
+                            <!-- Demo Accounts -->
+                            <div class="demo-accounts">
+                                <h5>Demo Accounts (For Testing)</h5>
+                                <div class="row">
+                                    <div class="col-md-4 mb-2">
+                                        <div class="demo-role">Citizen</div>
+                                        <div class="demo-credentials">Email: citizen@demo.com</div>
+                                        <div class="demo-credentials">Password: demo123</div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="demo-role">Department</div>
+                                        <div class="demo-credentials">Email: department@demo.com</div>
+                                        <div class="demo-credentials">Password: demo123</div>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <div class="demo-role">Policymaker</div>
+                                        <div class="demo-credentials">Email: policymaker@demo.com</div>
+                                        <div class="demo-credentials">Password: demo123</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Registration Panel -->
+                        <div id="registerPanel" class="auth-panel">
+                            <h3 class="mb-4" style="color: var(--gov-blue);">Create New Account</h3>
+                            
+                            <form id="registerForm">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="regFullName" class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="regFullName" 
+                                               placeholder="Enter your full name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="regMobile" class="form-label">Mobile Number</label>
+                                        <input type="tel" class="form-control" id="regMobile" 
+                                               placeholder="Enter 10-digit mobile number" pattern="[0-9]{10}" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="regEmail" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="regEmail" 
+                                           placeholder="Enter your email address" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="regRole" class="form-label">Account Type</label>
+                                    <select class="form-control" id="regRole" required>
+                                        <option value="">Select Account Type</option>
+                                        <option value="citizen">Citizen Account</option>
+                                        <option value="department">Department Account (Govt. Staff)</option>
+                                        <option value="policymaker">Policymaker Account (Approved Users)</option>
+                                    </select>
+                                    <small class="text-muted">Department and Policymaker accounts require manual approval.</small>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="regPassword" class="form-label">Password</label>
+                                        <div class="password-container">
+                                            <input type="password" class="form-control" id="regPassword" 
+                                                   placeholder="Create password" required>
+                                            <span class="password-toggle" onclick="togglePassword('regPassword')">
+                                                <i class="fas fa-eye"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="regConfirmPassword" class="form-label">Confirm Password</label>
+                                        <div class="password-container">
+                                            <input type="password" class="form-control" id="regConfirmPassword" 
+                                                   placeholder="Confirm password" required>
+                                            <span class="password-toggle" onclick="togglePassword('regConfirmPassword')">
+                                                <i class="fas fa-eye"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="regAddress" class="form-label">Address (Optional)</label>
+                                    <textarea class="form-control" id="regAddress" rows="2" 
+                                              placeholder="Enter your address"></textarea>
+                                </div>
+                                
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="regTerms" required>
+                                    <label class="form-check-label" for="regTerms">
+                                        I agree to the <a href="#" style="color: var(--gov-blue);">Terms of Service</a> and 
+                                        <a href="#" style="color: var(--gov-blue);">Privacy Policy</a>
+                                    </label>
+                                </div>
+                                
+                                <button type="submit" class="btn-auth" id="registerBtn">
+                                    <span class="spinner" style="display: none;"></span>
+                                    Create Account
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <!-- Forgot Password Panel -->
+                        <div id="forgotPanel" class="auth-panel">
+                            <h3 class="mb-4" style="color: var(--gov-blue);">Reset Your Password</h3>
+                            
+                            <form id="forgotForm">
+                                <div class="mb-3">
+                                    <label for="forgotEmail" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="forgotEmail" 
+                                           placeholder="Enter your registered email" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="forgotRole" class="form-label">Account Role</label>
+                                    <select class="form-control" id="forgotRole" required>
+                                        <option value="">Select Role</option>
+                                        <option value="citizen">Citizen</option>
+                                        <option value="department">Department</option>
+                                        <option value="policymaker">Policymaker</option>
+                                    </select>
+                                </div>
+                                
+                                <button type="submit" class="btn-auth" id="forgotBtn">
+                                    <span class="spinner" style="display: none;"></span>
+                                    Send OTP to Email
+                                </button>
+                                
+                                <div class="text-center mt-3">
+                                    <a href="javascript:void(0)" onclick="switchTab('login')" 
+                                       class="text-decoration-none" style="color: var(--gov-blue);">
+                                        <i class="fas fa-arrow-left me-1"></i>Back to Login
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="auth-footer">
+            <p>
+                © 2025 Government of NCT of Delhi. All Rights Reserved. | 
+                <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a> | 
+                <a href="#">Help & Support</a>
+            </p>
+            <p class="mb-0">
+                <i class="fas fa-shield-alt me-1"></i>
+                This portal is secured with government-grade encryption protocols
+            </p>
+        </div>
+    </div>
+
+    <!-- OTP Modal -->
+    <div id="otpModal" class="otp-modal">
+        <div class="otp-content">
+            <h3 class="mb-3" style="color: var(--gov-blue);">Verify OTP</h3>
+            <p id="otpMessage">We've sent a 6-digit OTP to your registered email address. Enter it below:</p>
+            
+            <div class="otp-inputs">
+                <input type="text" class="otp-input" maxlength="1" oninput="moveToNext(this, 1)" autofocus>
+                <input type="text" class="otp-input" maxlength="1" oninput="moveToNext(this, 2)">
+                <input type="text" class="otp-input" maxlength="1" oninput="moveToNext(this, 3)">
+                <input type="text" class="otp-input" maxlength="1" oninput="moveToNext(this, 4)">
+                <input type="text" class="otp-input" maxlength="1" oninput="moveToNext(this, 5)">
+                <input type="text" class="otp-input" maxlength="1" oninput="moveToNext(this, 6)">
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-6">
+                    <button type="button" class="btn btn-secondary w-100" onclick="closeOTPModal()">Cancel</button>
+                </div>
+                <div class="col-6">
+                    <button type="button" class="btn-auth" id="verifyOtpBtn" onclick="verifyOTP()">
+                        <span class="spinner" style="display: none;"></span>
+                        Verify OTP
+                    </button>
+                </div>
+            </div>
+            
+            <div class="text-center mt-3">
+                <a href="javascript:void(0)" onclick="resendOTP()" class="text-decoration-none" 
+                   style="color: var(--gov-blue);">
+                    <i class="fas fa-redo me-1"></i>Resend OTP
+                </a>
+                <div id="resendTimer" class="mt-2 text-muted small"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Google Apps Script Web App URL (You need to deploy this)
+        const APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxRMHTQ8SjXHX4IwfzZ3EVn3BN2tM10jF6qP_mKJZ2iI0hQHazxj-eCvI5Mkr24vN5H/exec';
+        
+        // Current state
+        let currentUser = null;
+        let currentOTP = null;
+        let otpEmail = null;
+        let otpRole = null;
+        
+        // DOM Ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check URL parameters for role
+            const urlParams = new URLSearchParams(window.location.search);
+            const role = urlParams.get('role');
+            if (role) {
+                switchTab('login');
+                document.getElementById('loginRole').value = role;
+            }
+            
+            // Setup form submissions
+            setupForms();
+            
+            // Load any saved credentials
+            loadSavedCredentials();
+        });
+        
+        // Tab Switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.auth-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.querySelector(`.auth-tab:nth-child(${tabName === 'login' ? 1 : tabName === 'register' ? 2 : 3})`).classList.add('active');
+            document.getElementById(`${tabName}Panel`).classList.add('active');
+            
+            // Clear alerts
+            clearAlert();
+        }
+        
+        // Toggle Password Visibility
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.parentElement.querySelector('.password-toggle i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        // Setup Forms
+        function setupForms() {
+            // Login Form
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await handleLogin();
+            });
+            
+            // Registration Form
+            document.getElementById('registerForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await handleRegister();
+            });
+            
+            // Forgot Password Form
+            document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await handleForgotPassword();
+            });
+        }
+        
+        // Handle Login
+        async function handleLogin() {
+            const role = document.getElementById('loginRole').value;
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            // Validate
+            if (!role || !email || !password) {
+                showAlert('Please fill all fields', 'error');
+                return;
+            }
+            
+            // Show loading
+            const loginBtn = document.getElementById('loginBtn');
+            const spinner = loginBtn.querySelector('.spinner');
+            loginBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+            loginBtn.innerHTML = spinner.outerHTML + ' Authenticating...';
+            
+            try {
+                // Call Google Apps Script
+                const response = await fetch(APPSCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'login',
+                        role: role,
+                        email: email,
+                        password: password
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Check if user is approved
+                    if (result.approved === false) {
+                        showAlert('Your account is pending approval. Please contact administrator.', 'warning');
+                        return;
+                    }
+                    
+                    if (result.approved === 'denied') {
+                        showAlert('Your account access has been denied. Please contact administrator.', 'error');
+                        return;
+                    }
+                    
+                    // Save credentials if remember me is checked
+                    if (rememberMe) {
+                        localStorage.setItem('savedEmail', email);
+                        localStorage.setItem('savedRole', role);
+                    } else {
+                        localStorage.removeItem('savedEmail');
+                        localStorage.removeItem('savedRole');
+                    }
+                    
+                    // Store user data
+                    currentUser = {
+                        id: result.id,
+                        email: email,
+                        role: role,
+                        name: result.name,
+                        approved: result.approved
+                    };
+                    
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // Show success message
+                    showAlert('Login successful! Redirecting...', 'success');
+                    
+                    // Redirect to appropriate dashboard
+                    setTimeout(() => {
+                        switch(role) {
+                            case 'citizen':
+                                window.location.href = 'citizen.html';
+                                break;
+                            case 'department':
+                                window.location.href = 'department.html';
+                                break;
+                            case 'policymaker':
+                                window.location.href = 'policymaker.html';
+                                break;
+                        }
+                    }, 1500);
+                    
+                } else {
+                    showAlert(result.message || 'Invalid credentials', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert('Network error. Please try again.', 'error');
+            } finally {
+                // Reset button
+                loginBtn.disabled = false;
+                spinner.style.display = 'none';
+                loginBtn.innerHTML = 'Login to Portal';
+            }
+        }
+        
+        // Handle Registration
+        async function handleRegister() {
+            const fullName = document.getElementById('regFullName').value.trim();
+            const mobile = document.getElementById('regMobile').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const role = document.getElementById('regRole').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const address = document.getElementById('regAddress').value.trim();
+            
+            // Validate
+            if (!fullName || !mobile || !email || !role || !password || !confirmPassword) {
+                showAlert('Please fill all required fields', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showAlert('Passwords do not match', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showAlert('Password must be at least 6 characters long', 'error');
+                return;
+            }
+            
+            if (mobile.length !== 10 || !/^\d+$/.test(mobile)) {
+                showAlert('Please enter a valid 10-digit mobile number', 'error');
+                return;
+            }
+            
+            // Show loading
+            const registerBtn = document.getElementById('registerBtn');
+            const spinner = registerBtn.querySelector('.spinner');
+            registerBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+            registerBtn.innerHTML = spinner.outerHTML + ' Creating Account...';
+            
+            try {
+                // Call Google Apps Script
+                const response = await fetch(APPSCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'register',
+                        full_name: fullName,
+                        mobile: mobile,
+                        email: email,
+                        role: role,
+                        password: password,
+                        address: address,
+                        approved: role === 'citizen' ? true : false // Auto-approve citizens, others need manual approval
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('Registration successful! ' + 
+                             (role === 'citizen' ? 'You can now login.' : 'Your account is pending approval.'), 
+                             'success');
+                    
+                    // Clear form
+                    document.getElementById('registerForm').reset();
+                    
+                    // Switch to login tab for non-citizens
+                    if (role !== 'citizen') {
+                        setTimeout(() => switchTab('login'), 2000);
+                    }
+                    
+                } else {
+                    showAlert(result.message || 'Registration failed', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Registration error:', error);
+                showAlert('Network error. Please try again.', 'error');
+            } finally {
+                // Reset button
+                registerBtn.disabled = false;
+                spinner.style.display = 'none';
+                registerBtn.innerHTML = 'Create Account';
+            }
+        }
+        
+        // Handle Forgot Password
+        async function handleForgotPassword() {
+            const email = document.getElementById('forgotEmail').value.trim();
+            const role = document.getElementById('forgotRole').value;
+            
+            // Validate
+            if (!email || !role) {
+                showAlert('Please fill all fields', 'error');
+                return;
+            }
+            
+            // Show loading
+            const forgotBtn = document.getElementById('forgotBtn');
+            const spinner = forgotBtn.querySelector('.spinner');
+            forgotBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+            forgotBtn.innerHTML = spinner.outerHTML + ' Sending OTP...';
+            
+            try {
+                // Call Google Apps Script to send OTP
+                const response = await fetch(APPSCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'send_otp',
+                        email: email,
+                        role: role
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Store OTP data
+                    currentOTP = result.otp;
+                    otpEmail = email;
+                    otpRole = role;
+                    
+                    // Show OTP modal
+                    showOTPModal(email);
+                    
+                    // Start resend timer
+                    startResendTimer();
+                    
+                    showAlert('OTP sent to your email', 'success');
+                    
+                } else {
+                    showAlert(result.message || 'Failed to send OTP', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Forgot password error:', error);
+                showAlert('Network error. Please try again.', 'error');
+            } finally {
+                // Reset button
+                forgotBtn.disabled = false;
+                spinner.style.display = 'none';
+                forgotBtn.innerHTML = 'Send OTP to Email';
+            }
+        }
+        
+        // Show OTP Modal
+        function showOTPModal(email) {
+            const modal = document.getElementById('otpModal');
+            const message = document.getElementById('otpMessage');
+            
+            message.textContent = `We've sent a 6-digit OTP to ${email}. Enter it below:`;
+            modal.style.display = 'flex';
+            
+            // Clear OTP inputs
+            document.querySelectorAll('.otp-input').forEach(input => {
+                input.value = '';
+            });
+            
+            // Focus first input
+            document.querySelector('.otp-input').focus();
+        }
+        
+        // Close OTP Modal
+        function closeOTPModal() {
+            document.getElementById('otpModal').style.display = 'none';
+            currentOTP = null;
+            otpEmail = null;
+            otpRole = null;
+        }
+        
+        // Move to next OTP input
+        function moveToNext(input, nextIndex) {
+            if (input.value.length === 1) {
+                const nextInput = input.parentElement.children[nextIndex];
+                if (nextInput) {
+                    nextInput.focus();
+                }
+            }
+        }
+        
+        // Verify OTP
+        async function verifyOTP() {
+            // Collect OTP
+            let otp = '';
+            document.querySelectorAll('.otp-input').forEach(input => {
+                otp += input.value;
+            });
+            
+            if (otp.length !== 6) {
+                showAlert('Please enter complete 6-digit OTP', 'error');
+                return;
+            }
+            
+            // Show loading
+            const verifyBtn = document.getElementById('verifyOtpBtn');
+            const spinner = verifyBtn.querySelector('.spinner');
+            verifyBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+            verifyBtn.innerHTML = spinner.outerHTML + ' Verifying...';
+            
+            try {
+                // In production, verify OTP with backend
+                if (otp === currentOTP) {
+                    // OTP verified - show new password form
+                    showNewPasswordForm();
+                    closeOTPModal();
+                } else {
+                    showAlert('Invalid OTP. Please try again.', 'error');
+                }
+                
+            } catch (error) {
+                console.error('OTP verification error:', error);
+                showAlert('Verification failed. Please try again.', 'error');
+            } finally {
+                // Reset button
+                verifyBtn.disabled = false;
+                spinner.style.display = 'none';
+                verifyBtn.innerHTML = 'Verify OTP';
+            }
+        }
+        
+        // Show new password form
+        function showNewPasswordForm() {
+            const html = `
+                <div class="mt-4">
+                    <h4 style="color: var(--gov-blue);">Set New Password</h4>
+                    <div class="mb-3">
+                        <label class="form-label">New Password</label>
+                        <div class="password-container">
+                            <input type="password" class="form-control" id="newPassword" 
+                                   placeholder="Enter new password" required>
+                            <span class="password-toggle" onclick="togglePassword('newPassword')">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirm New Password</label>
+                        <div class="password-container">
+                            <input type="password" class="form-control" id="confirmNewPassword" 
+                                   placeholder="Confirm new password" required>
+                            <span class="password-toggle" onclick="togglePassword('confirmNewPassword')">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <button class="btn-auth" onclick="resetPassword()">Reset Password</button>
+                </div>
+            `;
+            
+            document.getElementById('forgotPanel').insertAdjacentHTML('beforeend', html);
+        }
+        
+        // Reset Password
+        async function resetPassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            
+            if (!newPassword || !confirmNewPassword) {
+                showAlert('Please fill all fields', 'error');
+                return;
+            }
+            
+            if (newPassword !== confirmNewPassword) {
+                showAlert('Passwords do not match', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showAlert('Password must be at least 6 characters long', 'error');
+                return;
+            }
+            
+            try {
+                // Call Google Apps Script to reset password
+                const response = await fetch(APPSCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'reset_password',
+                        email: otpEmail,
+                        role: otpRole,
+                        new_password: newPassword
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('Password reset successfully! You can now login with new password.', 'success');
+                    
+                    // Clear forms
+                    document.getElementById('forgotForm').reset();
+                    document.querySelector('#forgotPanel div:last-child').remove();
+                    
+                    // Switch to login tab
+                    setTimeout(() => switchTab('login'), 2000);
+                    
+                } else {
+                    showAlert(result.message || 'Password reset failed', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Reset password error:', error);
+                showAlert('Network error. Please try again.', 'error');
+            }
+        }
+        
+        // Resend OTP
+        async function resendOTP() {
+            if (!otpEmail || !otpRole) return;
+            
+            try {
+                const response = await fetch(APPSCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'send_otp',
+                        email: otpEmail,
+                        role: otpRole
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentOTP = result.otp;
+                    showAlert('New OTP sent to your email', 'success');
+                    startResendTimer();
+                } else {
+                    showAlert(result.message || 'Failed to resend OTP', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Resend OTP error:', error);
+                showAlert('Network error. Please try again.', 'error');
+            }
+        }
+        
+        // Start resend timer
+        function startResendTimer() {
+            let timeLeft = 60;
+            const timerElement = document.getElementById('resendTimer');
+            
+            const timer = setInterval(() => {
+                timerElement.textContent = `Resend OTP in ${timeLeft} seconds`;
+                timeLeft--;
+                
+                if (timeLeft < 0) {
+                    clearInterval(timer);
+                    timerElement.textContent = '';
+                    timerElement.innerHTML = '<a href="javascript:void(0)" onclick="resendOTP()" class="text-decoration-none" style="color: var(--gov-blue);">Click here to resend OTP</a>';
+                }
+            }, 1000);
+        }
+        
+        // Load saved credentials
+        function loadSavedCredentials() {
+            const savedEmail = localStorage.getItem('savedEmail');
+            const savedRole = localStorage.getItem('savedRole');
+            
+            if (savedEmail && savedRole) {
+                document.getElementById('loginEmail').value = savedEmail;
+                document.getElementById('loginRole').value = savedRole;
+                document.getElementById('rememberMe').checked = true;
+            }
+        }
+        
+        // Show Alert
+        function showAlert(message, type) {
+            const alertElement = document.getElementById('alertMessage');
+            
+            alertElement.textContent = message;
+            alertElement.className = `alert-message alert-${type}`;
+            alertElement.style.display = 'block';
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                clearAlert();
+            }, 5000);
+        }
+        
+        // Clear Alert
+        function clearAlert() {
+            const alertElement = document.getElementById('alertMessage');
+            alertElement.style.display = 'none';
+            alertElement.textContent = '';
+        }
+        
+        // Logout function (to be called from other pages)
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'auth.html';
+        }
+        
+        // Check authentication (to be called from other pages)
+        function checkAuth() {
+            const user = localStorage.getItem('currentUser');
+            if (!user) {
+                window.location.href = 'auth.html';
+                return null;
+            }
+            return JSON.parse(user);
+        }
+    </script>
+</body>
+</html>
