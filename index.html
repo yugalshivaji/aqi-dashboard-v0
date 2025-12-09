@@ -815,6 +815,23 @@
                 align-items: flex-start;
                 gap: 10px;
             }
+            /* Heatmap Chart Styles */
+.heatmap-container {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.heatmap-data {
+    border-top: 1px solid #e9ecef;
+    padding-top: 15px;
+}
+
+.heatmap-data .badge {
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    margin-top: 5px;
+}
         }
     </style>
 </head>
@@ -1169,31 +1186,46 @@
                     </div>
                 </div>
 
-                <!-- Failure Probability Heatmap -->
-                <div class="col-md-6 col-lg-6">
-                    <div class="prediction-card h-100">
-                        <div class="prediction-header bg-success text-white">
-                            <div class="prediction-icon">
-                                <i class="fas fa-fire"></i>
-                            </div>
-                            <h4>Failure Probability Heatmap</h4>
-                        </div>
-                        <div class="prediction-body">
-                            <div id="failureHeatmap" style="height: 250px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                <div class="text-center">
-                                    <i class="fas fa-map fa-3x text-muted mb-3"></i>
-                                    <p class="text-muted">Interactive Heatmap Loading...</p>
-                                </div>
-                            </div>
-                            <div class="heatmap-legend mt-3">
-                                <span class="legend-item"><span class="legend-color low"></span> Low Risk (0-30%)</span>
-                                <span class="legend-item"><span class="legend-color medium"></span> Medium Risk (31-60%)</span>
-                                <span class="legend-item"><span class="legend-color high"></span> High Risk (61-100%)</span>
-                            </div>
-                        </div>
+<!-- Failure Probability Heatmap -->
+<div class="col-md-6 col-lg-6">
+    <div class="prediction-card h-100">
+        <div class="prediction-header bg-success text-white">
+            <div class="prediction-icon">
+                <i class="fas fa-fire"></i>
+            </div>
+            <h4>Failure Probability Heatmap</h4>
+        </div>
+        <div class="prediction-body">
+            <div class="heatmap-container" style="height: 250px; position: relative;">
+                <canvas id="failureHeatmapChart"></canvas>
+            </div>
+            <div class="heatmap-data mt-3">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="small text-muted">Highest Risk</div>
+                        <div class="fw-bold" id="highestRiskLocation">Anand Vihar</div>
+                        <span class="badge bg-danger" id="highestRiskValue">82%</span>
+                    </div>
+                    <div class="col-4">
+                        <div class="small text-muted">Avg Risk</div>
+                        <div class="fw-bold">Delhi NCR</div>
+                        <span class="badge bg-warning" id="avgRiskValue">56%</span>
+                    </div>
+                    <div class="col-4">
+                        <div class="small text-muted">Lowest Risk</div>
+                        <div class="fw-bold" id="lowestRiskLocation">Dwarka</div>
+                        <span class="badge bg-success" id="lowestRiskValue">15%</span>
                     </div>
                 </div>
             </div>
+            <div class="heatmap-legend mt-3">
+                <span class="legend-item"><span class="legend-color low"></span> Low Risk (0-30%)</span>
+                <span class="legend-item"><span class="legend-color medium"></span> Medium Risk (31-60%)</span>
+                <span class="legend-item"><span class="legend-color high"></span> High Risk (61-100%)</span>
+            </div>
+        </div>
+    </div>
+</div>
 
             <!-- Prediction Alerts Panel -->
             <div class="row mt-4">
@@ -1647,6 +1679,160 @@
                     location: `${lat},${lon}`,
                     timestamp: new Date().toISOString()
                 });
+
+                updateHeatmapChart() {
+    const ctx = document.getElementById('failureHeatmapChart');
+    if (!ctx) return;
+    
+    // Get or create chart instance
+    if (!this.heatmapChart) {
+        // Prepare heatmap data for Delhi NCR regions
+        const heatmapData = this.generateHeatmapData();
+        
+        this.heatmapChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: heatmapData.map(item => item.location),
+                datasets: [{
+                    label: 'Failure Probability',
+                    data: heatmapData.map(item => item.risk),
+                    backgroundColor: heatmapData.map(item => {
+                        if (item.risk > 60) return 'rgba(220, 53, 69, 0.7)';
+                        if (item.risk > 30) return 'rgba(255, 193, 7, 0.7)';
+                        return 'rgba(40, 167, 69, 0.7)';
+                    }),
+                    borderColor: heatmapData.map(item => {
+                        if (item.risk > 60) return 'rgba(220, 53, 69, 1)';
+                        if (item.risk > 30) return 'rgba(255, 193, 7, 1)';
+                        return 'rgba(40, 167, 69, 1)';
+                    }),
+                    borderWidth: 1,
+                    borderRadius: 3,
+                    barPercentage: 0.7,
+                    categoryPercentage: 0.8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Risk: ${context.parsed.y}%`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Failure Probability'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 10
+                            },
+                            maxRotation: 45
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        // Update existing chart
+        const heatmapData = this.generateHeatmapData();
+        this.heatmapChart.data.labels = heatmapData.map(item => item.location);
+        this.heatmapChart.data.datasets[0].data = heatmapData.map(item => item.risk);
+        this.heatmapChart.data.datasets[0].backgroundColor = heatmapData.map(item => {
+            if (item.risk > 60) return 'rgba(220, 53, 69, 0.7)';
+            if (item.risk > 30) return 'rgba(255, 193, 7, 0.7)';
+            return 'rgba(40, 167, 69, 0.7)';
+        });
+        this.heatmapChart.update();
+    }
+    
+    // Update heatmap statistics
+    this.updateHeatmapStats();
+}
+
+generateHeatmapData() {
+    // Generate mock heatmap data for Delhi NCR regions
+    const locations = [
+        'Anand Vihar', 'ITO Delhi', 'Punjabi Bagh', 'Dwarka', 
+        'Noida Sec 62', 'Gurugram', 'Faridabad', 'Ghaziabad'
+    ];
+    
+    // Use actual sensor data if available, otherwise generate realistic data
+    return locations.map(location => {
+        // Try to find sensor data for this location
+        const sensor = this.predictionData.sensors.find(s => 
+            s.location.includes(location.split(' ')[0]));
+        
+        let risk;
+        if (sensor) {
+            risk = Math.round(sensor.failureProbability * 100);
+        } else {
+            // Generate realistic risk values based on location
+            const baseRisks = {
+                'Anand Vihar': 82,
+                'ITO Delhi': 65,
+                'Punjabi Bagh': 45,
+                'Dwarka': 15,
+                'Noida Sec 62': 73,
+                'Gurugram': 88,
+                'Faridabad': 58,
+                'Ghaziabad': 62
+            };
+            risk = baseRisks[location] || Math.floor(Math.random() * 100);
+            
+            // Add some random variation
+            const variation = (Math.random() - 0.5) * 10;
+            risk = Math.max(0, Math.min(100, Math.round(risk + variation)));
+        }
+        
+        return {
+            location: location,
+            risk: risk
+        };
+    }).sort((a, b) => b.risk - a.risk); // Sort by risk descending
+}
+
+updateHeatmapStats() {
+    const heatmapData = this.generateHeatmapData();
+    
+    if (heatmapData.length > 0) {
+        // Highest risk
+        const highest = heatmapData[0];
+        document.getElementById('highestRiskLocation').textContent = highest.location;
+        document.getElementById('highestRiskValue').textContent = `${highest.risk}%`;
+        
+        // Lowest risk
+        const lowest = heatmapData[heatmapData.length - 1];
+        document.getElementById('lowestRiskLocation').textContent = lowest.location;
+        document.getElementById('lowestRiskValue').textContent = `${lowest.risk}%`;
+        
+        // Average risk
+        const avgRisk = Math.round(heatmapData.reduce((sum, item) => sum + item.risk, 0) / heatmapData.length);
+        document.getElementById('avgRiskValue').textContent = `${avgRisk}%`;
+        document.getElementById('avgRiskValue').className = 
+            avgRisk > 60 ? 'badge bg-danger' : 
+            avgRisk > 30 ? 'badge bg-warning' : 'badge bg-success';
+    }
+}
                 
                 // Show prediction alert
                 if (predictor) {
